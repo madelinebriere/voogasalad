@@ -1,4 +1,4 @@
-package path;
+package gameengine.path;
 
 import java.util.List;
 
@@ -16,3 +16,4 @@ public interface IPath {
 	List<Integer> getSuccessor(); // might take in a Actor object as argument 
 	int getEnd();
 }
+
