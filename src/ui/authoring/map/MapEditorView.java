@@ -1,7 +1,13 @@
 package ui.authoring.map;
 
+import java.util.Optional;
+
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -22,42 +28,86 @@ public class MapEditorView extends GridPane implements Frameable{
 	private double myTileWidth;
 	private Frame myFrame;
 	private MapData myMapData;
+	private PathTile mySelectedTile; //this is the tile that will be added on mouse click
 	
-	public MapEditorView(double width, double height, Frame frame){
+	
+	public MapEditorView(int xDim, int yDim, Frame frame){
 		super();
 		this.setBackground(new Background(new BackgroundFill[] { new BackgroundFill(CustomColors.GREEN, new CornerRadii(3), Insets.EMPTY)}));
-		myDimensions = new Tuple<Integer,Integer>((int)width,(int) height);
-		myTileHeight = frame.getHeight() / height;
-		myTileWidth = frame.getWidth() / width;
-		myMapData = new MapData((int)width, (int)height);
+		this.setAlignment(Pos.CENTER);
+		myDimensions = new Tuple<Integer,Integer>(xDim,yDim);
+		myTileHeight = frame.getHeight() / yDim;
+		myTileWidth = frame.getWidth() / xDim;
+		myMapData = new MapData(xDim, yDim);
+		mySelectedTile = new PathTile(
+				new TileData(defaultWalkImage, new Tuple<Integer,Integer>(0,0), TileType.WALK), myTileWidth,myTileHeight);
 		setFrame(frame);
 		setupDefaultMap();
+		setupMouseEvents();
 	}
 
 	private void setupDefaultMap() {
 		for(int i=0; i < myDimensions.x;i++){
 			for(int j=0; j < myDimensions.y; j++){
 				PathTile tile;
+				Tuple<Integer,Integer> index = new Tuple<Integer,Integer>(i,j);
 				if(i==0 && j==myDimensions.y/2)//entry point location
-					tile = new PathTileEntry(defaultEntryImage,myTileWidth, myTileHeight);
-				else if(i == myDimensions.x - 1 && j==myDimensions.y/2)
-					tile = new PathTileExit(defaultExitImage,myTileWidth, myTileHeight);
-				else if(j==myDimensions.y/2) //exit point location
-					tile = new PathTileWalkable(defaultWalkImage,myTileWidth, myTileHeight);
-				else //straight path between entry and exit (horizontal)
-					tile = new PathTileBlock(defaultBlockImage, myTileWidth, myTileHeight);
-				addTileToMap(tile, i, j);
+					tile = new PathTile(
+							new TileData(defaultEntryImage,index,TileType.ENTRY),myTileWidth, myTileHeight);
+				
+				else if(i == myDimensions.x - 1 && j==myDimensions.y/2) //exit point location
+					tile = new PathTile(
+							new TileData(defaultExitImage,index, TileType.EXIT),myTileWidth, myTileHeight);
+				
+				else if(j==myDimensions.y/2)
+					tile = new PathTile(
+							new TileData(defaultWalkImage,index, TileType.WALK),myTileWidth, myTileHeight);
+				
+				else //grass
+					tile = new PathTile(
+							new TileData(defaultBlockImage, index, TileType.BLOCK), myTileWidth, myTileHeight);
+				
+				setTile(tile);
 			}
 		}
-		TileData d = myMapData.getTileAtIndex(5, 5); 
-		System.out.println(d.getClassName()+"\n"+d.getImagePath());
 	}
 	
-	private void addTileToMap(PathTile tile, int col, int row){
-		myMapData.addTileDataAtIndex(new TileData(tile), col, row);
-		this.add(tile, col, row, 1, 1);
+	private void setTile(PathTile tile){
+		myMapData.addTileDataAtIndex(tile.getTileData(), tile.getTileData().getIndex().x, tile.getTileData().getIndex().y);
+		this.add(tile, tile.getTileData().getIndex().x, tile.getTileData().getIndex().y, 1, 1);
+	}
+	private void replaceTile(PathTile currentTile, PathTile newTile){
+		this.getChildren().remove(currentTile);
+		setTile(newTile);
 	}
 
+	private void setupMouseEvents(){
+		this.addEventHandler(MouseEvent.MOUSE_ENTERED, e -> this.getScene().setCursor(Cursor.CROSSHAIR));
+		this.addEventHandler(MouseEvent.MOUSE_EXITED, e -> this.getScene().setCursor(Cursor.DEFAULT));
+		this.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+			PathTile tile = findTileAtPoint(e.getX(),e.getY());
+			if(tile!= null){
+				replaceTile(tile, mySelectedTile.clone(tile.getTileData().getIndex()));
+			}
+				
+		});
+	}
+	
+	private PathTile findTileAtPoint(double x, double y){
+		Optional<Node> node = this.getChildren().stream().filter(e -> e.getBoundsInParent().contains(x, y)).findFirst();
+        if(node.isPresent()){
+        	return (PathTile) node.get();
+        }
+        System.out.println("not found tile");
+        return null;	
+	}
+	
+	public void setBlockToAdd(PathTile tile){
+		mySelectedTile = tile;
+	}
+	
+	//MARK: Frameable interface
+	
 	public void setFrame(Frame frame){
 		myFrame = frame;
 		this.setLayoutX(frame.getX());

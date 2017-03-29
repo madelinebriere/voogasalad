@@ -13,9 +13,17 @@ public class LevelData {
 	
 	/* TODO
 	 * 
-	 * EnemyData
-	 * TowerData
+	 * EnemyData // hp, speed, immunity, money-drop,attack
+	 * TowerData //pow, range, freq, anti-immunity, movability, (health v static)
+	 * power-up data
+	 * BaseData (optional)
 	 * PreferencesData (game type, optional functionality)
-	 * 
+	 	* Rules
+	 	* Are towers attackable
+	 	* Do enemies loop around when they get to the exit
+	 	* Is there going to be a base
+	 	* How many lives does the player have
+	 	* Interest on money?
+	 	* pause between waves?
 	 */
 }
