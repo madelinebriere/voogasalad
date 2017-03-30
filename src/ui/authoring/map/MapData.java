@@ -1,5 +1,7 @@
 package ui.authoring.map;
 
+import java.util.Optional;
+
 import util.Tuple;
 
 /**
@@ -11,22 +13,42 @@ import util.Tuple;
  */
 public class MapData {
 	private TileData[][] data;
+	private Tuple<Integer,Integer> dimensions;
 	
 	public MapData(int xDim, int yDim){
+		dimensions = new Tuple<Integer, Integer>(xDim,yDim);
 		data = new TileData[xDim][yDim];
 	}
 	
+	/**
+	 * adds/replaces the tiledata at the given (col, row)
+	 * checks for errors relating to invalid dimensions
+	 * @param tile
+	 * @param col
+	 * @param row
+	 */
 	public void addTileDataAtIndex(TileData tile, int col, int row){
-		checkDimensions(col,row);
-		data[col][row] = tile;
+		if(checkDimensions(col,row))
+			data[col][row] = tile;
+		else
+			//TODO remove this; for debugging purposes only
+			System.out.println("!!!INVALID INDEX!!!");
 	}
 	
-	public TileData getTileAtIndex(int col, int row){
-		checkDimensions(col,row);
-		return data[col][row];
+	/**
+	 * 
+	 * @param col
+	 * @param row
+	 * @return an Optional TileData,
+	 * 		Optional has null value if the col and row are invalid indexes or if the value is null
+	 * 		Value is valid TileData if the row and col are valid and tiledata is present in the data array
+	 */
+	public Optional<TileData> getTileAtIndex(int col, int row) {
+		return (checkDimensions(col,row))? 
+				Optional.ofNullable(data[col][row]) : Optional.empty();
 	}
 	
-	private void checkDimensions(int col, int row){
-		//TODO
+	private boolean checkDimensions(int col, int row){
+		return col >= 0 && col < dimensions.x && row >=0 && row < dimensions.y;
 	}
 }

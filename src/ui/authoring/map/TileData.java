@@ -1,8 +1,10 @@
 package ui.authoring.map;
 
+import util.Tuple;
+
 /**
- * used by MapData to encode all the needed information from
- * a tile in the map.
+ * used by MapData to store the information for each individual
+ * tile in the map.
  * 
  * @author TNK
  *
@@ -10,12 +12,14 @@ package ui.authoring.map;
 public class TileData {
 	
 	private String imagePath;
-	private String pathTileClassName;
+	private TileType tileType;
+	private Tuple<Integer,Integer> index; 
 	
-	public TileData(PathTile tile) {
+	public TileData(String imagePath,Tuple<Integer,Integer> index, TileType tileType) {
 		check();
-		imagePath = tile.getImage();
-		pathTileClassName = tile.getClass().getName();
+		this.imagePath = imagePath;
+		this.tileType = tileType;
+		this.index = index;
 	}
 	
 	/**
@@ -30,9 +34,20 @@ public class TileData {
 		return imagePath;
 	}
 	
-	public String getClassName(){
-		return pathTileClassName;
+	public TileType getTileType(){
+		return tileType;
 	}
 
+	public Tuple<Integer,Integer> getIndex(){
+		return index;
+	}
+	
+	public void setImagePath(String path){
+		this.imagePath = path;
+	}
+
+	public void setIndex(Tuple<Integer, Integer> index) {
+		this.index = index;
+	}
 	
 }
