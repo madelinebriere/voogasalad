@@ -3,8 +3,8 @@ package ui.authoring.map;
 import util.Tuple;
 
 /**
- * used by MapData to encode all the needed information from
- * a tile in the map.
+ * used by MapData to store the information for each individual
+ * tile in the map.
  * 
  * @author TNK
  *

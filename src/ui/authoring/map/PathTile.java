@@ -40,7 +40,7 @@ public class PathTile extends StackPane{
 	 */
 	public PathTile clone(Tuple<Integer, Integer> newIndex){
 		TileData newData= new TileData(myTileData.getImagePath(), newIndex, myTileData.getTileType());
-		return new PathTile(newData, myTileSize.x, myTileSize.y);
+		return new PathTile(newData,myTileSize.x, myTileSize.y);
 	}
 
 	public TileData getTileData() {
