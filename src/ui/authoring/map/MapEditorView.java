@@ -15,35 +15,40 @@ import javafx.scene.layout.GridPane;
 import ui.general.CustomColors;
 import ui.general.Frame;
 import ui.general.Frameable;
+import ui.general.UIView;
 import util.Tuple;
 
-public class MapEditorView extends GridPane implements Frameable{
+public class MapEditorView extends UIView{
 	
+	private GridPane myGridPane;
 	private Tuple<Integer, Integer> myDimensions;
-	private String defaultBlockImage = "grass.png";
-	private String defaultWalkImage = "dirt.png";
-	private String defaultEntryImage = "default_entry.png";
-	private String defaultExitImage = "default_exit.png";
+	private final String defaultBlockImage = "grass.png";
+	private final String defaultWalkImage = "dirt.png";
+	private final String defaultEntryImage = "default_entry.png";
+	private final String defaultExitImage = "default_exit.png";
 	private double myTileHeight;
 	private double myTileWidth;
-	private Frame myFrame;
 	private MapData myMapData;
 	private PathTile mySelectedTile; //this is the tile that will be added on mouse click
 	
 	
 	public MapEditorView(int xDim, int yDim, Frame frame){
-		super();
-		this.setBackground(new Background(new BackgroundFill[] { new BackgroundFill(CustomColors.GREEN, new CornerRadii(3), Insets.EMPTY)}));
-		this.setAlignment(Pos.CENTER);
+		super(frame);
+		this.setBackgroundColor(CustomColors.GREEN_200);
+		myGridPane = new GridPane();
 		myDimensions = new Tuple<Integer,Integer>(xDim,yDim);
 		myTileHeight = frame.getHeight() / yDim;
 		myTileWidth = frame.getWidth() / xDim;
 		myMapData = new MapData(xDim, yDim);
 		mySelectedTile = new PathTile(
 				new TileData(defaultWalkImage, new Tuple<Integer,Integer>(0,0), TileType.WALK), myTileWidth,myTileHeight);
-		setFrame(frame);
+		setupViews();
 		setupDefaultMap();
 		setupMouseEvents();
+	}
+
+	private void setupViews() {
+		this.getChildren().add(myGridPane);
 	}
 
 	private void setupDefaultMap() {
@@ -51,30 +56,24 @@ public class MapEditorView extends GridPane implements Frameable{
 			for(int j=0; j < myDimensions.y; j++){
 				PathTile tile;
 				Tuple<Integer,Integer> index = new Tuple<Integer,Integer>(i,j);
-				if(i==0 && j==myDimensions.y/2)//entry point location
-					tile = new PathTile(
-							new TileData(defaultEntryImage,index,TileType.ENTRY),myTileWidth, myTileHeight);
-				
-				else if(i == myDimensions.x - 1 && j==myDimensions.y/2) //exit point location
-					tile = new PathTile(
-							new TileData(defaultExitImage,index, TileType.EXIT),myTileWidth, myTileHeight);
-				
-				else if(j==myDimensions.y/2)
+				if(j==myDimensions.y/2) //dirt
 					tile = new PathTile(
 							new TileData(defaultWalkImage,index, TileType.WALK),myTileWidth, myTileHeight);
-				
 				else //grass
 					tile = new PathTile(
 							new TileData(defaultBlockImage, index, TileType.BLOCK), myTileWidth, myTileHeight);
-				
 				setTile(tile);
 			}
 		}
+		
+		setTile(new PathTile(new TileData(defaultEntryImage, new Tuple<Integer,Integer>(0,myDimensions.y/2), TileType.ENTRY), myTileWidth, myTileHeight));
+		setTile(new PathTile(new TileData(defaultExitImage, new Tuple<Integer,Integer>(myDimensions.x - 1,myDimensions.y/2), TileType.EXIT), myTileWidth, myTileHeight));
+
 	}
 	
 	private void setTile(PathTile tile){
 		myMapData.addTileDataAtIndex(tile.getTileData(), tile.getTileData().getIndex().x, tile.getTileData().getIndex().y);
-		this.add(tile, tile.getTileData().getIndex().x, tile.getTileData().getIndex().y, 1, 1);
+		myGridPane.add(tile, tile.getTileData().getIndex().x, tile.getTileData().getIndex().y, 1, 1);
 	}
 	private void replaceTile(PathTile currentTile, PathTile newTile){
 		this.getChildren().remove(currentTile);
@@ -94,7 +93,9 @@ public class MapEditorView extends GridPane implements Frameable{
 	}
 	
 	private PathTile findTileAtPoint(double x, double y){
-		Optional<Node> node = this.getChildren().stream().filter(e -> e.getBoundsInParent().contains(x, y)).findFirst();
+		Optional<Node> node = myGridPane.getChildren().stream().
+				filter(e -> e.getBoundsInParent().contains(x, y)).
+				findFirst();
         if(node.isPresent()){
         	return (PathTile) node.get();
         }
@@ -106,20 +107,5 @@ public class MapEditorView extends GridPane implements Frameable{
 		mySelectedTile = tile;
 	}
 	
-	//MARK: Frameable interface
-	
-	public void setFrame(Frame frame){
-		myFrame = frame;
-		this.setLayoutX(frame.getX());
-		this.setLayoutY(frame.getY());
-		this.setPrefWidth(frame.getWidth());
-		this.setPrefHeight(frame.getHeight());
-	}
 
-	public Frame getFrame() {
-		return myFrame;
-	}
-	public Frame getBounds(){
-		return myFrame;
-	}
 }
