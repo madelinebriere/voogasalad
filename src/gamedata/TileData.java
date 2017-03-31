@@ -1,5 +1,6 @@
-package ui.authoring.map;
+package gamedata;
 
+import types.TileType;
 import util.Tuple;
 
 /**
