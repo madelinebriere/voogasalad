@@ -1,18 +1,17 @@
-package gameengine.actors;
+package gameengine.actors.management;
 
 import gameengine.ActorResult;
 
-public interface IActor {
+public interface IActor <O>{
 
-	public ActorResult act();
+	public ActorResult act(O out);
+	
+	public void deactivate();
 	
 	public boolean isActive();
 	
 	public double getHealth();
 	
 	public void setHealth(double health);
-	
-	public void dies();
-	
-	public boolean hasDied();
+
 }
