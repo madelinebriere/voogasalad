@@ -1,7 +1,9 @@
-package ui.authoring.map;
+package ui.authoring;
 
 import java.util.Optional;
 
+import gamedata.MapData;
+import gamedata.TileData;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -12,6 +14,8 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
+import types.TileType;
+import ui.authoring.map.PathTile;
 import ui.general.CustomColors;
 import ui.general.Frame;
 import ui.general.Frameable;
