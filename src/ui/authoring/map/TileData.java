@@ -13,6 +13,8 @@ public class TileData {
 	
 	private String imagePath;
 	private TileType tileType;
+	private boolean towerIsPlaceable;
+	private boolean enemyPlaceable;
 	private Tuple<Integer,Integer> index; 
 	
 	public TileData(String imagePath,Tuple<Integer,Integer> index, TileType tileType) {
