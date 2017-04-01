@@ -1,4 +1,7 @@
+
 package gameengine.actors;
+
+import javafx.scene.shape.Path;
 
 public interface SmartActor {
 
