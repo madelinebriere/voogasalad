@@ -20,3 +20,4 @@
 *.RTF	 diff=astextplain
 *.obj  diff=astextplain
 *.{avi,mp4,xml} filter=lfs diff=lfs merge=lfs -text
+*.xml filter=lfs diff=lfs merge=lfs -text
