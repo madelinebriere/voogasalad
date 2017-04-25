@@ -31,7 +31,7 @@ public class SettingsPane extends SlidingPane {
 	private String helpText;
 	public static final String howToPlay = "data/resource/howToPlay.txt";
 
-	public void setReturnToMain(EventHandler<ActionEvent> value) {
+	public void setBackToLoginAction(EventHandler<ActionEvent> value) {
 		backToLogin.setOnAction(value);
 	}
 	
@@ -69,7 +69,7 @@ public class SettingsPane extends SlidingPane {
 
 	private void showHelp() {
 		HBox helpHBox = new HBox();
-		helpHBox.setStyle("-fx-background-color: white; -fx-opacity: .7");
+		helpHBox.setStyle("-fx-background-color: white; -fx-opacity: .9");
 		helpHBox.setAlignment(Pos.CENTER);
 		helpHBox.setPrefSize(420, 380);
 		//helpHBox.setPadding(new Insets(0, 20, 0, 20));
