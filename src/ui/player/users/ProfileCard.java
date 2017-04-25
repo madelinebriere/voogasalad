@@ -1,12 +1,12 @@
 package ui.player.users;
-
 import java.util.ResourceBundle;
-
 import javafx.animation.ScaleTransition;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -15,9 +15,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import ui.player.inGame.OptionButton;
-
 public class ProfileCard {
-
 	private HBox card;
 	private User user;
 	private ResourceBundle profileRB;
@@ -33,7 +31,8 @@ public class ProfileCard {
 		return card;
 	}
 	
-	public void setLogout(EventHandler<ActionEvent> e) {
+	public void setLogoutAction(EventHandler<ActionEvent> e) {
+		System.out.println("returning");
 		logout.setOnAction(e);
 	}
 	
@@ -46,13 +45,11 @@ public class ProfileCard {
 		this.profileRB = ResourceBundle.getBundle(rb);
 		setup();
 	}
-
 	private void setup() {
 		imageAndExperince();
 		gameStats();
 		exit();
 	}
-
 	private void exit() {
 		VBox exiting = new VBox(20);
 		EventHandler<MouseEvent> close = new EventHandler<MouseEvent>()  {
@@ -65,22 +62,24 @@ public class ProfileCard {
 			}
 		};
 		OptionButton exit = new OptionButton(0, "", "x_icon.png", close);
+		exit.getButton().setStyle("-fx-background-color: transparent");
 		logout = new Hyperlink("Logout");
 		exiting.getChildren().addAll(exit.getButton(), logout);
-		exit.getButton().setStyle("-fx-background-color: transparent");
 		card.getChildren().add(exiting);
 	}
-
 	private void imageAndExperince() {
-		VBox vb = new VBox(20);
-		ImageView profilePicture = new ImageView(new Image(user.getProfilePicture(), 150, 150, false, true));
-		expGrid = new ExperienceGrid(profileRB);
-		setupExpGridValues();
-		vb.getChildren().addAll(profilePicture, expGrid.getGrid());
-		vb.setAlignment(Pos.CENTER);
-		card.getChildren().add(vb);
+		if(user != null) {
+			VBox vb = new VBox(20);
+			ImageView profilePicture = new ImageView(new Image(user.getProfilePicture(), 150, 150, false, true));
+			expGrid = new ExperienceGrid(profileRB);
+			setupExpGridValues();
+			vb.getChildren().addAll(profilePicture, expGrid.getGrid());
+			vb.setAlignment(Pos.CENTER);
+			card.getChildren().add(vb);
+		} else {
+			new Alert(AlertType.ERROR, profileRB.getString("nouser")).showAndWait();
+		}
 	}
-
 	private void setupExpGridValues() {
 		expGrid.getRank().setText(user.getRank());
 		expGrid.getExperience().setText(user.getExperience().toString());
@@ -90,7 +89,6 @@ public class ProfileCard {
 			expGrid.getEntryMap().get(entry).setPrefWidth(100);
 		});
 	}
-
 	private void gameStats() {
 		gsGrid = new GameStatsGrid(profileRB);
 		setupGSGridValues();
@@ -98,7 +96,6 @@ public class ProfileCard {
 		card.getChildren().add(gsGrid.getGrid());
 		card.setAlignment(Pos.BOTTOM_CENTER);
 	}
-
 	private void setupGSGridValues() {
 		gsGrid.getLastPlayed().setText(user.getLastPlayed());
 		gsGrid.getMostPlayed().setText(user.getMostPlayed());
@@ -109,5 +106,4 @@ public class ProfileCard {
 			gsGrid.getEntryMap().get(entry).setPrefWidth(100);
 		});
 	}
-
 }

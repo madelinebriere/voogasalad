@@ -51,7 +51,7 @@ public class UIMain{
 
 	private void setupSelections() {
 		Button authButton = getOptionsButton("Authoring Environment");
-		authButton.addEventHandler(MouseEvent.MOUSE_RELEASED, e -> launchAuthorEnvView());
+		//authButton.addEventHandler(MouseEvent.MOUSE_RELEASED, e -> launchAuthorEnvView());
 		Button gameButton = getOptionsButton("Load Game");
 		
 		VBox vBox = new VBox(16);
@@ -98,11 +98,11 @@ public class UIMain{
 
 	}
 	
-	private void launchAuthorEnvView() {
+/*	private void launchAuthorEnvView() {
 		AuthoringView view = new AuthoringView();
 		Stage s = (Stage) myScene.getWindow();
 		s.setScene(new Scene(view, Preferences.SCREEN_WIDTH, Preferences.SCREEN_HEIGHT, Color.WHITE));
-	}
+	}*/
 	
 	public Scene getScene(){
 		return myScene;
