@@ -8,15 +8,10 @@ import java.util.Optional;
 import gamedata.ActorData;
 import gameengine.grid.interfaces.frontendinfo.FrontEndInformation;
 import javafx.animation.FadeTransition;
-import javafx.animation.Transition;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.media.MediaPlayer.Status;
-import javafx.scene.text.Text;
 import javafx.util.Duration;
 import ui.general.ImageViewPane;
 import ui.handlers.UIHandler;
@@ -38,24 +33,10 @@ public class GameScreen extends GenericGameScreen
 		screenHandler = new ScreenHandler(){
 			@Override
 			public void createActor(double x, double y, int option, ActorData actorData ) {
-				Actor actor = new Actor(uihandler, screenHandler, option,actorData,ivp, actorsMap);
+				Actor actor = new Actor(uihandler,option,actorData,ivp, actorsMap);
 				actor.getPane().setLayoutX(getWidth() - x);
 				actor.getPane().setLayoutY(y);
 				getChildren().add(actor.getPane());
-			}
-			@Override
-			public void showError(String msg) {
-				Text error = new Text(msg);
-				error.setStyle("-fx-font-size: 50; -fx-fill: red");
-				HBox holder = new HBox(error);
-				holder.setAlignment(Pos.CENTER);
-				getChildren().add(holder);
-				FadeTransition ft = (FadeTransition) fadeTransition(holder, 1.0, 0.);
-				ft.setOnFinished(e -> getChildren().remove(holder));
-				AnchorPane.setTopAnchor(holder, 20.);
-				AnchorPane.setLeftAnchor(holder, 20.);
-				AnchorPane.setRightAnchor(holder, 20.);
-				AnchorPane.setBottomAnchor(holder, 20.);
 			}
 		};
 	}
@@ -80,7 +61,7 @@ public class GameScreen extends GenericGameScreen
 		initializeScreenHandler();
 		hud = uihandler.getSimpleHUD().get();
 		setup();
-		fadeTransition(this, .0, 1.);
+		fadeTransition();
 	}
 	
 	private void setup() {
@@ -110,12 +91,11 @@ public class GameScreen extends GenericGameScreen
 		this.getChildren().add(hud.getGrid());
 	}
 	
-	private Transition fadeTransition(Node n, double from, double to) {
-		FadeTransition ft = new FadeTransition(Duration.millis(1000), n);
-		ft.setFromValue(from);
-		ft.setToValue(to);
+	private void fadeTransition() {
+		FadeTransition ft = new FadeTransition(Duration.millis(1000), this);
+		ft.setFromValue(0.0);
+		ft.setToValue(1.0);
 		ft.play();
-		return ft;
 	}
 
 	@Override
@@ -132,7 +112,7 @@ public class GameScreen extends GenericGameScreen
 		arg.keySet().stream().forEach(id -> {
 			Integer actorOption = arg.get(id).getActorOption();
 			if(!actorsMap.containsKey(id)) {
-				Actor newActor = new Actor(uihandler, screenHandler, actorOption, uihandler.getOptions().get(actorOption), ivp, actorsMap);
+				Actor newActor = new Actor(uihandler, actorOption, uihandler.getOptions().get(actorOption), ivp, actorsMap);
 				actorsMap.put(id, newActor);
 				this.getChildren().add(newActor.getPane());
 			}
