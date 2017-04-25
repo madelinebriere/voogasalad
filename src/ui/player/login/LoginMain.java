@@ -70,6 +70,7 @@ public class LoginMain {
 			public void returnToMain() {
 				stage.setScene(loginScreen.getScene());
 				stage.setTitle("Login");
+				//stage.sizeToScene();
 				stage.setWidth(Preferences.SCREEN_WIDTH);
 				stage.setHeight(Preferences.SCREEN_HEIGHT);
 			}
@@ -144,9 +145,10 @@ public class LoginMain {
 	
 	private void showProfileCard(User user) {
 		ProfileCard card = new ProfileCard("profile", user, "profile.css");
-		card.setLogout(e -> {
+		card.setLogoutAction(e -> {
+			Main m = new Main();
 			try {
-				new Main().start(stage);
+				m.start(stage);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
@@ -174,7 +176,6 @@ public class LoginMain {
 	
 	private void goToGameScreen(GameData gameData) {
 		gameController = new GameController(gameData);
-		gameController.getGameScreen().setLoginHandler(loginhandler);
 		gameController.start(stage);
 		stage.setScene(new Scene(gameController.getGameScreen(), Preferences.SCREEN_WIDTH, Preferences.SCREEN_HEIGHT, Color.WHITE));
 		stage.setTitle("Game Screen");
