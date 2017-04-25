@@ -1,8 +1,6 @@
 package ui.player.inGame;
-
 import java.util.Map;
 import java.util.Optional;
-
 import gamedata.ActorData;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -16,11 +14,10 @@ import ui.general.ImageViewPane;
 import ui.general.UIHelper;
 import ui.handlers.UIHandler;
 import util.VoogaException;
-
 public class Actor{
-
 	ImageViewPane imp;
 	UIHandler uihandler;
+	ScreenHandler screenhandler;
 	Map<Integer, Actor> mapOfActors;
 	Actor clazz = this;
 	ActorData actorData;
@@ -29,7 +26,6 @@ public class Actor{
 	double width;
 	double height;
 	Optional<Boolean> removeable;
-
 	public Pane getPane() {
 		return actor;
 	}
@@ -42,11 +38,12 @@ public class Actor{
 		return Integer.parseInt(actor.getId());
 	}
 	
-	public Actor(UIHandler uihandler, Integer option, ActorData actorData, ImageViewPane ivp, Map<Integer, Actor> mapOfActors) {
+	public Actor(UIHandler uihandler, ScreenHandler screenhandler, Integer option, ActorData actorData, ImageViewPane ivp, Map<Integer, Actor> mapOfActors) {
 		actor = UIHelper.buttonStack(e -> {
 		}, Optional.ofNullable(null), Optional.of(new ImageView(new Image(actorData.getImagePath(), 30, 30, true, true))), Pos.CENTER,
 				true);
 		actor.setBackground(Background.EMPTY);
+		this.screenhandler = screenhandler;
 		this.actorData = actorData;
 		this.option = option;
 		this.imp = ivp;
@@ -55,13 +52,11 @@ public class Actor{
 		this.removeable = Optional.of(true);
 		setup();
 	}
-
 	public void setup() {
 		width = imp.getWidth() - 2 * imp.getImageInsets().x;
 		height = imp.getHeight() - 2 * imp.getImageInsets().y;
 		setupEvents();
 	}
-
 	/**
 	 * Creates events for when the node is dragged, released, or clicked secondarily
 	 */
@@ -70,7 +65,6 @@ public class Actor{
 		actor.addEventHandler(MouseEvent.MOUSE_CLICKED, place);
 		actor.addEventHandler(MouseEvent.MOUSE_RELEASED, released);
 	}
-
 	EventHandler<MouseEvent> drag = new EventHandler<MouseEvent>() {
 		@Override
 		public void handle(final MouseEvent ME) {
@@ -82,15 +76,16 @@ public class Actor{
 	/**
 	 * if location is appropriate, actor will update to a new location when released from drag 
 	 */
+	//TODO: how is off grid checked?
 	EventHandler<MouseEvent> released = new EventHandler<MouseEvent>() {
 		@Override
 		public void handle(final MouseEvent ME) {
 			if (actor.getId() != null && (mapOfActors.get(Integer.parseInt(actor.getId())) != null)) {
-				System.out.println("W: " + actor.getLayoutX() / width + " " + actor.getLayoutY() / height + " "+ actor.getId() + " " + mapOfActors);
 				try {
 					uihandler.updateGameObjectLocation(Integer.parseInt(actor.getId()), actor.getLayoutX() / width,
 							actor.getLayoutY() / height);
 				} catch (NumberFormatException | VoogaException e) {
+					screenhandler.showError("You cannot place an item there!");
 					System.out.println("Unable to add game object -- Actor ~ 103");
 					//System.out.println("**********Unable to update location********** Actor(~80)");
 					//e.printStackTrace();
@@ -98,7 +93,6 @@ public class Actor{
 			}
 		}
 	};
-
 	
 	/**
 	 * Upon secondary mouse click, actor will be placed in the actor map
@@ -119,12 +113,12 @@ public class Actor{
 						actor.setId(actorID.toString());
 					}
 				} catch (NumberFormatException | VoogaException e) {
+					screenhandler.showError("You cannot place an item there!");
 					System.out.println("Unable to add game object -- Actor ~ 132");
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 			}
 			
 		}
 	};
-
 }
