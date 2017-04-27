@@ -22,11 +22,13 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import ui.Preferences;
 import ui.handlers.LoginHandler;
 import ui.player.XStreamFileChooser;
 import ui.player.users.User;
 import ui.player.users.UserDatabase;
+import util.FileSelector;
 public class Signup extends BorderedAnchorPane implements LoginElement {
 	//need to save image somehow and store as string to the location userImages/...
 	private Scene scene;
@@ -104,11 +106,13 @@ public class Signup extends BorderedAnchorPane implements LoginElement {
 	EventHandler<MouseEvent> loadPicture = new EventHandler<MouseEvent>(){
 		@Override
 		public void handle(MouseEvent t) {
-			FileChooser fileChooser = new FileChooser();
+			FileSelector fileScelector = new FileSelector("*.png");
+/*			FileChooser fileChooser = new FileChooser();
 			FileChooser.ExtensionFilter extFilterJPG = new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.JPG");
 			FileChooser.ExtensionFilter extFilterPNG = new FileChooser.ExtensionFilter("PNG files (*.png)", "*.PNG");
-			fileChooser.getExtensionFilters().addAll(extFilterJPG, extFilterPNG);
-			File file = fileChooser.showOpenDialog(null);
+			fileChooser.getExtensionFilters().addAll(extFilterJPG, extFilterPNG);*/
+			File file = fileScelector.open(new Stage());
+			//File file = fileChooser.showOpenDialog(null);
 			if (file != null) {
 				profileImage.getChildren().clear();
 				profilePicture = file.toURI().toString();
@@ -125,7 +129,7 @@ public class Signup extends BorderedAnchorPane implements LoginElement {
 			
 			User newUser = new User(signupGrid.getUsername().getText(),
 					database.getPasswords().getUserPassword(signupGrid.getUsername().getText()),
-					generic_profile, signupGrid.getEmail().getText());
+					profilePicture, signupGrid.getEmail().getText());
 			database.addUser(newUser);
 			
 			String mySavedUsers = mySerializer.toXML(database);

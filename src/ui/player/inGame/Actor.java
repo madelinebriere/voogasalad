@@ -39,9 +39,8 @@ public class Actor{
 	}
 	
 	public Actor(UIHandler uihandler, ScreenHandler screenhandler, Integer option, ActorData actorData, ImageViewPane ivp, Map<Integer, Actor> mapOfActors) {
-		actor = UIHelper.buttonStack(e -> {
-		}, Optional.ofNullable(null), Optional.of(new ImageView(new Image(actorData.getImagePath(), 30, 30, true, true))), Pos.CENTER,
-				true);
+		actor = UIHelper.buttonStack(e -> {}, Optional.ofNullable(null), Optional.of(new ImageView(new Image(actorData.getImagePath(), 
+				30, 30, true, true))), Pos.CENTER, true);
 		actor.setBackground(Background.EMPTY);
 		this.screenhandler = screenhandler;
 		this.actorData = actorData;
