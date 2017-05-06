@@ -90,16 +90,20 @@ public class GameSelector extends BorderedAnchorPane implements LoginElement {
 		HBox gamesHBox = new HBox(50);
 		gamesHBox.setPadding(new Insets(0., 50., 0., 50.));
 		gamesList.forEach(game -> {
-			VBox vbox = new VBox(40);
-			StackPane g = new StackPane();
-			g.getStyleClass().add("image-stack-pane");
-			g.getChildren().add(new ImageView(new Image(game.getImagePath(), 300, 250, false, true)));
-			g.setOnMouseClicked(game.getClicked());
-			Text name = new Text(game.getName());
-			name.setId("text");
-			vbox.getChildren().addAll(name, g);
-			vbox.setAlignment(Pos.CENTER);
-			gamesHBox.getChildren().add(vbox);
+			try {
+				VBox vbox = new VBox(40);
+				StackPane g = new StackPane();
+				g.getStyleClass().add("image-stack-pane");
+				g.getChildren().add(new ImageView(new Image(game.getImagePath(), 300, 250, false, true)));
+				g.setOnMouseClicked(game.getClicked());
+				Text name = new Text(game.getName());
+				name.setId("text");
+				vbox.getChildren().addAll(name, g);
+				vbox.setAlignment(Pos.CENTER);
+				gamesHBox.getChildren().add(vbox);
+			} catch(Exception e) {
+				// Ignore game
+			}
 		});
 		gameMenu.setContent(gamesHBox);
 		gamesHBox.setAlignment(Pos.CENTER);
