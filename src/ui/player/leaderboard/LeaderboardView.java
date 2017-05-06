@@ -86,7 +86,7 @@ public class LeaderboardView implements LoginElement {
 		return row;
 	}
 	
-	public void setReturnToMain(int row) {
+	private void setReturnToMain(int row) {
 		Hyperlink returnToMain = new Hyperlink("Return to main");
 		returnToMain.setOnAction(e -> loginhandler.returnToMain());
 		scores.add(returnToMain, 0, row);

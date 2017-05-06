@@ -1,19 +1,17 @@
+//This entire file is part of my masterpiece.
+//Vishnu Gottiparthy
+
+/**
+ * This class is well designed because it wraps together the various UI elements in a way
+ * that preserves encapsulation and ensures readability.
+ */
+
 package ui.player.login;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.ResourceBundle;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
-import XML.xmlmanager.classes.XStreamSerializer;
-import XML.xmlmanager.interfaces.serialization.VoogaSerializer;
-import gamedata.GameData;
-import gameengine.controllers.GameController;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -26,6 +24,7 @@ import ui.Preferences;
 import ui.authoring.AuthoringView;
 import ui.handlers.LoginHandler;
 import ui.player.GameSelector;
+import ui.player.GamesLauncher;
 import ui.player.ProfileCornerPicture;
 import ui.player.XStreamFileChooser;
 import ui.player.leaderboard.LeaderboardView;
@@ -33,7 +32,6 @@ import ui.player.ratings.RatingView;
 import ui.player.users.ProfileCard;
 import ui.player.users.User;
 import ui.player.users.UserDatabase;
-import util.FileSelector;
 
 /**
  * Acts as the primary controller for the UI. Houses all of the visual elements:
@@ -53,19 +51,14 @@ import util.FileSelector;
 public class LoginMain {
 
 	private Stage stage;
-	private GameController gameController;
 	private UserDatabase database;
 	private ResourceBundle loginResource;
 	private Login loginScreen;
 	private Signup signupPage;
 	private LoginHandler loginhandler;
 	private String css;
-	private String resource;
-	public static final String userDatabase = "userDatabase.xml";
-	public static final String CONFIG_EXTENSION = "*.xml";
-	private static final String guestUser = "Guest";
-	private static final List<String> games = new ArrayList<>(Arrays.asList("games/Duvall vs. Singletons.xml"));
-
+	private GamesLauncher gamesLauncher;
+	
 	/**
 	 * Initialized in {@link voogasalad_ilovesingletons.Main}
 	 * 
@@ -80,15 +73,13 @@ public class LoginMain {
 	public LoginMain(Stage stage, String css, String resource) {
 		this.stage = stage;
 		this.css = css;
-		this.resource = resource;
+		loginResource = ResourceBundle.getBundle(resource);
+		
 		setupDatabase();
 		setupLoginHandler();
-		stage.setMinHeight(Preferences.SCREEN_HEIGHT);
-		stage.setMinWidth(Preferences.SCREEN_WIDTH);
-		loginResource = ResourceBundle.getBundle(resource);
 		loginScreen = new Login(loginhandler, css, resource);
-		Scene scene = loginScreen.getScene();
-		stage.setScene(scene);
+		setupStage();
+		gamesLauncher = new GamesLauncher(stage, loginhandler, loginResource);
 	}
 
 	private void setupLoginHandler() {
@@ -136,8 +127,7 @@ public class LoginMain {
 			public void returnToMain() {
 				stage.setScene(loginScreen.getScene());
 				stage.setTitle("Login");
-				stage.setWidth(Preferences.SCREEN_WIDTH);
-				stage.setHeight(Preferences.SCREEN_HEIGHT);
+				fixStageDimensions();
 			}
 
 			@Override
@@ -150,35 +140,29 @@ public class LoginMain {
 			@Override
 			public void gotoAuth() {
 				AuthoringView view = new AuthoringView(loginhandler);
-				stage.setScene(new Scene(view, Preferences.SCREEN_WIDTH, Preferences.SCREEN_HEIGHT, Color.WHITE));
+				stage.setScene(new Scene(view, Preferences.SCREEN_WIDTH, 
+						Preferences.SCREEN_HEIGHT, Color.WHITE));
 			}
 
 			@Override
 			public void gotoGameSelector() {
-				List<MiniGame> miniGamesList = new ArrayList<>();
-				miniGamesList.add(new MiniGame("Load Custom Game", "black.jpg", e -> promptUserToChooseGame()));
-				games.forEach(game -> {
-					GameData gd = readGame(new File(game));
-					miniGamesList.add(new MiniGame(gd.getName(), gd.getDisplayData().getBackgroundImagePath(), e -> goToGameScreen(gd)));
-				});
-				GameSelector select = new GameSelector(loginhandler, "English", "mainScreen.css", miniGamesList);
+				GameSelector select = new GameSelector(loginhandler, "English", "mainScreen.css", 
+						gamesLauncher.getList());
 				stage.setScene(select.getScene());
 				stage.setTitle("Game Selector");
-				stage.show();
+				fixStageDimensions();
 			}
 
 			@Override
 			public void gotoReviews() {
 				stage.setScene(new RatingView(loginhandler, "English").getScene());
-				stage.setWidth(Preferences.SCREEN_WIDTH);
-				stage.setHeight(Preferences.SCREEN_HEIGHT);
+				fixStageDimensions();
 			}
 
 			@Override
 			public void gotoLeaderboard() {
 				stage.setScene(new LeaderboardView(loginhandler).getScene());
-				stage.setWidth(Preferences.SCREEN_WIDTH);
-				stage.setHeight(Preferences.SCREEN_HEIGHT);
+				fixStageDimensions();
 			}
 
 			@Override
@@ -190,19 +174,31 @@ public class LoginMain {
 
 	private void setupDatabase() {
 		XStream mySerializer = new XStream(new DomDriver());
-		XStreamFileChooser fileChooser = new XStreamFileChooser(userDatabase);
-		database = (fileChooser.readInClass() != null) ? (UserDatabase) mySerializer.fromXML(fileChooser.readInClass())
-				: new UserDatabase();
+		XStreamFileChooser fileChooser = new XStreamFileChooser(loginResource.getString("userDatabase"));
+		database = (fileChooser.readInClass() != null) ? 
+				(UserDatabase) mySerializer.fromXML(fileChooser.readInClass()) : new UserDatabase();
+	}
+	
+	private void fixStageDimensions() {
+		stage.setWidth(Preferences.SCREEN_WIDTH);
+		stage.setHeight(Preferences.SCREEN_HEIGHT);
+	}
+	
+	private void setupStage() {
+		fixStageDimensions();
+		stage.setScene(loginScreen.getScene());
 	}
 
 	private void showProfileCard(User user) {
-		if (!user.equals(loginhandler.findUser(guestUser))) {
+		if (!user.equals(loginhandler.findUser(loginResource.getString("guestUser")))) {
+			
 			ProfileCard card = new ProfileCard("profile", user, "profile.css");
 			card.setLogoutAction(e -> {
-				loginhandler.setActiveUser(loginhandler.findUser(guestUser));
-				loginScreen = new Login(loginhandler, css, resource);
+				loginhandler.setActiveUser(loginhandler.findUser(loginResource.getString("guestUser")));
+				loginScreen = new Login(loginhandler, css, loginResource.getBaseBundleName());
 				loginhandler.returnToMain();
 			});
+			
 			HBox hb = card.getCard();
 			((Pane) stage.getScene().getRoot()).getChildren().add(hb);
 			AnchorPane.setBottomAnchor(hb, 25.);
@@ -210,31 +206,5 @@ public class LoginMain {
 		} else {
 			new Alert(AlertType.ERROR, loginResource.getString("pleaselogin")).showAndWait();
 		}
-	}
-
-	private void promptUserToChooseGame() {
-		FileSelector mySelector = new FileSelector(CONFIG_EXTENSION);
-		File dataFile = mySelector.open(new Stage());
-		goToGameScreen(readGame(dataFile));
-	}
-
-	private GameData readGame(File dataFile) {
-		try {	
-			if (dataFile != null) {
-				String XML = new String(Files.readAllBytes(Paths.get(dataFile.getAbsolutePath())));
-				VoogaSerializer serializer = new XStreamSerializer();
-				GameData gameData = serializer.makeObjectFromXMLString(XML, GameData.class);
-				return gameData;
-			}
-		} catch (Exception e) {
-			new Alert(AlertType.ERROR, "Invalid GameData file chosen").showAndWait();
-		}
-		return null;
-	}
-
-	private void goToGameScreen(GameData gameData) {
-		gameController = new GameController(gameData, loginhandler);
-		gameController.start(stage, Preferences.SCREEN_WIDTH, Preferences.SCREEN_HEIGHT, Color.WHITE);
-		stage.setTitle("Game Screen");
 	}
 }

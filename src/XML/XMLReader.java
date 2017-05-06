@@ -27,8 +27,6 @@ import gamedata.EnemyInWaveData;
 import gamedata.GameData;
 import gamedata.LevelData;
 import gamedata.PathData;
-import gamedata.ProjectileData;
-import gamedata.ProjectileType;
 import gamedata.StringToFieldFactory;
 import gamedata.WaveData;
 import gamedata.compositiongen.Data;
