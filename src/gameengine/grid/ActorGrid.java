@@ -7,24 +7,55 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import gameengine.actors.management.Actor;
 import gameengine.actors.propertygen.IActProperty;
 import gameengine.grid.classes.ActorFinder;
+import gameengine.grid.classes.BasicPlaceChecker;
 import gameengine.grid.classes.Coordinates;
 import gameengine.grid.classes.DisplayInfo;
+import gameengine.grid.exceptions.InvalidIDException;
 import gameengine.grid.interfaces.ActorGrid.MasterGrid;
+import gameengine.grid.interfaces.ActorGrid.ReadAndDamageGrid;
+import gameengine.grid.interfaces.ActorGrid.ReadAndMoveGrid;
+import gameengine.grid.interfaces.ActorGrid.ReadAndSpawnGrid;
+import gameengine.grid.interfaces.ActorGrid.ReadableGrid;
 import gameengine.grid.interfaces.Identifiers.Grid2D;
+import gameengine.grid.interfaces.Identifiers.PlaceChecker;
 import gameengine.grid.interfaces.Identifiers.SettableActorLocator;
 import gameengine.grid.interfaces.controllergrid.ControllableGrid;
+import gameengine.grid.interfaces.controllergrid.Steppable;
 import gameengine.grid.interfaces.controllerinfo.GridHandler;
 import gameengine.grid.interfaces.frontendinfo.FrontEndInformation;
 import gamestatus.WriteableGameStatus;
 import types.BasicActorType;
 import ui.player.listener.ListenQueue;
+import util.LambdaUtil;
+import util.MathUtil;
 import util.observerobservable.VoogaObservableMap;
+
+//This entire file is part of my masterpiece.
+//Gideon Pfeffer
+
+/**
+ * Rationale for Masterpiece:
+ * 
+ * Throughout the course of Vooga, this class went through a lot
+ * of design choices. Originally it held wildcard actors,
+ * then it help Maps for all of the actors, and now, it
+ * hold collections of actors (with the exception of the observable Map
+ * requested by the frontend). For my masterpiece, I refactored the class even further
+ * by removing stateless methods used by ther classes as well to static utilities (see LambdaUtil in utils),
+ * by adding new interfaces to check for valid actor movement, and by adding
+ * a new runtime exception instead of throwing an IllegalStateException. 
+ * 
+ * I think that this code is well designed because it
+ * splits up the methods into readable pieces, makes
+ * good use of other interfaces, and implements Java 8 
+ * features to make the code more readable.
+ */
+
 /**
  * 
  * @author Gideon
@@ -38,6 +69,7 @@ import util.observerobservable.VoogaObservableMap;
  * accordingly to the actor properties that need to use them.
  * 
  */
+
 public class ActorGrid extends VoogaObservableMap<Integer, FrontEndInformation> implements MasterGrid, ControllableGrid{
 	
 	private Coordinates limits;
@@ -45,14 +77,28 @@ public class ActorGrid extends VoogaObservableMap<Integer, FrontEndInformation> 
 	private Function<Integer, Actor> actorMaker;
 	private Stack<SettableActorLocator> newActors;
 	private GridHandler myHandler;
+	private PlaceChecker placeChecker;
 	
 	public ActorGrid(double maxX, double maxY, GridHandler myHandler, Function<Integer, Actor> actorMaker){
+		this(maxX, maxY, myHandler, actorMaker, new BasicPlaceChecker(maxX, maxY));
+	}
+	
+	public ActorGrid(double maxX, double maxY, GridHandler myHandler, 
+			Function<Integer, Actor> actorMaker, PlaceChecker placeChecker){
 		super();
 		limits = new Coordinates(maxX, maxY);
-		actors = new ArrayList<>();
-		newActors = new Stack<>();
 		this.actorMaker = actorMaker;
 		this.myHandler = myHandler;
+		this.placeChecker = placeChecker;
+		initializeStructures();
+	}
+	
+	/**
+	 * Initializes the data structures needed by the class
+	 */
+	private void initializeStructures(){
+		actors = new ArrayList<>();
+		newActors = new Stack<>();
 	}
 
 	/**
@@ -68,12 +114,24 @@ public class ActorGrid extends VoogaObservableMap<Integer, FrontEndInformation> 
 		actors.forEach(a -> a.getActor().act(this));
 		addNewActors();
 		updateActors();
-		actors = filter(actors, a -> a.getActor().isActive());
-		myMap = Collections.unmodifiableMap(actors.stream()
-				.collect(Collectors.toMap(a -> a.getActor().getID(), 
-						a -> new DisplayInfo(a.getLocation(), 
-								a.getActor()))));
+		updateObservedMap();
+	}
+	
+	/**
+	 * Updates the map with all information needed for display
+	 * 
+	 * Game player can observe this to display the changes in the grid
+	 * and update the interface accordingly
+	 * 
+	 * See {@link FrontEndInformation}
+	 */
+	private void updateObservedMap(){
+		myMap = Collections.unmodifiableMap(
+				actors.stream().collect(Collectors.toMap(
+						a -> a.getActor().getID(), //key
+						a -> new DisplayInfo(a.getLocation(), a.getActor())))); //value
 		notifyObservers();
+		
 	}
 	
 	/**
@@ -81,8 +139,8 @@ public class ActorGrid extends VoogaObservableMap<Integer, FrontEndInformation> 
 	 * active and resets the actors Collection to only the valid actors
 	 */
 	private void updateActors(){
-		filter(actors, a -> !a.getActor().isActive()).stream().forEach(a -> a.getActor().exit(this));
-		actors = filter(actors, a -> a.getActor().isActive());
+		LambdaUtil.filter(actors, a -> !a.getActor().isActive()).stream().forEach(a -> a.getActor().exit(this));
+		actors = LambdaUtil.filter(actors, a -> a.getActor().isActive());
 	}
 	
 	/**
@@ -96,46 +154,11 @@ public class ActorGrid extends VoogaObservableMap<Integer, FrontEndInformation> 
 	}
 	
 	/**
-	 * @param items the collection that will be filtered
-	 * @param predicate the predicate to base the filtering on
-	 * @return a collection of items filtered based on the predicate
-	 */
-	private <T> Collection<T> filter(Collection<T> items, Predicate<T> predicate){
-		return items.stream()
-				.filter(t -> predicate.test(t))
-				.collect(Collectors.toList());
-	}
-	
-	/**
-	 * @param items the collection that will be mapped
-	 * @param function the function to map the input to the output
-	 * @return A Collection of items mapped to their output based on the function passed
-	 */
-	private <I,O> Collection<O> map(Collection<I> items, Function<I,O> function){
-		return items.stream()
-				.map(i -> function.apply(i))
-				.collect(Collectors.toList());
-	}
-	
-	/**
-	 * @param x1 x loc of coordinate 1
-	 * @param x2 x loc of coordinate 2
-	 * @param y1 y loc of coordinate 1
-	 * @param y2 y loc of coordinate 2
-	 * @return the distance between coordinate 1 and coordinate 2
-	 */
-	private double distance(double x1, double x2, double y1, double y2){
-		double xDifSquared = Math.pow(x2-x1, 2);
-		double yDifSquared = Math.pow(y2-y1, 2);
-		return Math.pow(xDifSquared + yDifSquared, 0.5);
-	}
-	
-	/**
 	 * @param type the actor type to find instances of
 	 * @return a Collection of all actors currently active which are of type specified by type parameter
 	 */
 	private Collection<SettableActorLocator> specificActorTypes(BasicActorType type){
-		return filter(actors, a -> a.getActor().getType().equals(type));
+		return LambdaUtil.filter(actors, a -> a.getActor().getType().equals(type));
 	}
 	
 	/**
@@ -143,9 +166,9 @@ public class ActorGrid extends VoogaObservableMap<Integer, FrontEndInformation> 
 	 * @return the SettableActorLocator which contains the actor with the specified ID and its location
 	 */
 	private SettableActorLocator getActorFromID(int ID){
-		Collection<SettableActorLocator> foundIDs = filter(actors, a-> a.getActor().getID() == ID);
+		Collection<SettableActorLocator> foundIDs = LambdaUtil.filter(actors, a-> a.getActor().getID() == ID);
 		if(foundIDs.size() != 1) 
-			throw new IllegalStateException("found an invalid number of id's ~ lines 84 ActorGrid");
+			throw new InvalidIDException("found an invalid number of id's ~ lines 84 ActorGrid");
 		return foundIDs.iterator().next();
 	}
 
@@ -156,7 +179,9 @@ public class ActorGrid extends VoogaObservableMap<Integer, FrontEndInformation> 
 	@Override
 	public void move(int ID, double newX, double newY) {
 		SettableActorLocator actor = getActorFromID(ID);
-		actor.setLocation(newX, newY);
+		if(isValidLoc(newX, newY)){
+			actor.setLocation(newX, newY);
+		}
 	}
 	
 	/**
@@ -165,7 +190,8 @@ public class ActorGrid extends VoogaObservableMap<Integer, FrontEndInformation> 
 	 */
 	private Collection<SettableActorLocator> getActorsInRadius(double x, double y, double radius, BasicActorType type){
 		Collection<SettableActorLocator> filteredTypes = specificActorTypes(type);
-		return filter(filteredTypes, a -> distance(a.getLocation().getX(), x, a.getLocation().getY(), y) <= radius);
+		return LambdaUtil.filter(filteredTypes, 
+				a -> MathUtil.distance(a.getLocation().getX(), x, a.getLocation().getY(), y) <= radius);
 	}
 
 	/**
@@ -176,7 +202,7 @@ public class ActorGrid extends VoogaObservableMap<Integer, FrontEndInformation> 
 	@Override
 	public Collection<Grid2D> getActorLocationsInRadius(double x, double y, double radius, BasicActorType type) {
 		Collection<SettableActorLocator> actorsinRadius = getActorsInRadius(x, y, radius, type);
-		return Collections.unmodifiableCollection(map(actorsinRadius, a -> a.getLocation()));
+		return Collections.unmodifiableCollection(LambdaUtil.map(actorsinRadius, a -> a.getLocation()));
 	}
 	
 	/**
@@ -190,7 +216,8 @@ public class ActorGrid extends VoogaObservableMap<Integer, FrontEndInformation> 
 			double y, double radius, BasicActorType type) {
 		return Collections.unmodifiableMap(getActorsInRadius(x, y, radius, type).stream()
 					.collect(Collectors.toMap(
-							e -> e.getActor().applyDamage(), e -> e.getActor().getRemainingHealth())));
+							e -> e.getActor().applyDamage(), //key
+							e -> e.getActor().getRemainingHealth()))); //value
 	}
 
 	/**
@@ -210,18 +237,18 @@ public class ActorGrid extends VoogaObservableMap<Integer, FrontEndInformation> 
 	 */
 	@Override
 	public Collection<Grid2D> getActorLocations(BasicActorType type) {
-		return Collections.unmodifiableCollection(map(specificActorTypes(type), a -> a.getLocation()));
+		return Collections.unmodifiableCollection(LambdaUtil.map(specificActorTypes(type), a -> a.getLocation()));
 	}
 
 	/**
-	 * Returns whether or not a location is valid given the specifiecations
+	 * Returns whether or not a location is valid given the specifications
 	 * of the grid
 	 * 
 	 * See {@link ReadableGrid}
 	 */
 	@Override
 	public boolean isValidLoc(double x, double y) {
-		return x >= 0 && y >= 0 && x <= getMaxX() && y <= getMaxY();
+		return placeChecker.canBePlaced(x, y);
 	}
 
 	/**
@@ -252,7 +279,7 @@ public class ActorGrid extends VoogaObservableMap<Integer, FrontEndInformation> 
 	 */
 	@Override
 	public void removeActor(int ID) {
-		actors = filter(actors, a -> a.getActor().getID() != ID);
+		actors = LambdaUtil.filter(actors, a -> a.getActor().getID() != ID);
 	}
 	
 	/**
@@ -286,8 +313,8 @@ public class ActorGrid extends VoogaObservableMap<Integer, FrontEndInformation> 
 	@Override
 	public void actorSpawnActor(Integer actorType, double startX, double startY, Consumer<Collection<IActProperty<MasterGrid>>> action) {
 		Actor newActor = actorMaker.apply(actorType);
-		addActor(newActor, startX, startY);
 		newActor.addProperty(action);
+		addActor(newActor, startX, startY);
 	}
 
 	/**
@@ -322,5 +349,4 @@ public class ActorGrid extends VoogaObservableMap<Integer, FrontEndInformation> 
 	public ListenQueue getEventQueue() {
 		return myHandler.getEventQueue();
 	}
-
 }
