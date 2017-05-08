@@ -1,3 +1,6 @@
+// This entire file is part of my masterpiece.
+// Anngelyque Stevenson
+
 package ui.player.inGame;
 
 import java.util.ArrayList;
