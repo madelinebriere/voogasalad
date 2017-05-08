@@ -1,11 +1,10 @@
+// This entire file is part of my masterpiece.
+// SARAH ZHOU
+
 package gameengine.controllers;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Supplier;
-
 import builders.objectgen.ActorGenerator;
 import gamedata.ActorData;
 import gamedata.DisplayData;
@@ -34,6 +33,7 @@ import ui.player.inGame.SimpleHUD;
 import ui.player.listener.ListenQueue;
 import ui.player.listener.SceneListen;
 import ui.player.users.InitialGameStatus;
+import ui.player.users.User;
 import ui.player.users.WriteableUser;
 import util.GameObjectUtil;
 import util.InsufficientMoneyException;
@@ -42,7 +42,8 @@ import util.VoogaException;
 import util.observerobservable.VoogaObserver;
 /**
  * GameController is the controller layer between the front end display and the back end game engine
- * Implements UIHandler and initializes all necessary back end and front end components of game engine, as well as the Timeline
+ * Implements and initializes all necessary back end and front end components of game engine, as well as the Timeline 
+ * and all handlers to dictate interactions between components and control access 
  * @author sarahzhou
  *
  */
@@ -74,8 +75,6 @@ public class GameController {
 	private final int MAX_X = 1;
 	private final int MAX_Y = 1;
 	
-	private static int INIT_EXP = 0;
-	
 	private Function<BasicActorType,Integer> actorCounts;
 	
 	private final double MILLISECOND_DELAY=17;
@@ -83,31 +82,33 @@ public class GameController {
 	public GameController(GameData gameData,LoginHandler loginHandler) {
 		myGameData = gameData;
 		myGameObjectUtil = new GameObjectUtil();
+		myGrid = getNewActorGrid(myGameScreen);
+		initializeHandlers();
+		initializeInitialGameStatus(loginHandler.getActiveUser());
+		setupGameStatus(loginHandler.getActiveUser(),myInitGameStatus);
+		setUpGameScreen(loginHandler);
+		initializeLevelController();
+	}
+	
+	private void initializeHandlers() {
 		initializeUIHandler();
 		initializeAnimationHandler();
 		initializeGridHandler();
 		initializeLevelHandler();
-		initializeInitialGameStatus();
-		setupGameStatus(loginHandler.getActiveUser(),myInitGameStatus);
-		setUpGameScreen(loginHandler);
-		myGrid = getNewActorGrid(myGameScreen);
+	}
+	
+	private void initializeLevelController(){
 		myLevelController = new GameLevelController(myLevelHandler,myGameData,myGameStatus);
 	}
 	
 	private void setUpGameScreen(LoginHandler loginHandler) {
-		System.out.println(myUIHandler.getDisplayData().getBackgroundImagePath());
-		myGameScreen = new GameScreen(loginHandler,myUIHandler,myAnimationHandler,() -> mySimpleHUD);
-		myGameScreen.setAnimationHandler(myAnimationHandler);
-		myGameScreen.setSong(myGameData.getPreferences().getMusicFilePath()); //set music for game
-	}
-	
-	private Function<BasicActorType,Integer> getCounts(ReadableGrid grid) {
-		return (target) -> { 
-			return grid.getActorLocations(target).size();
-		};
+		myGameScreen = new GameScreen(loginHandler,myUIHandler,myAnimationHandler,() -> mySimpleHUD,myGameData.getPreferences().getMusicFilePath());
 	}
 	
 	/**
+	 * Returns a new clean instance of ActorGrid with the Observer(UIObserver)-Observable(ActorGrid) relationship established, and actorCounts function set.
+	 * Passes to ActorGrid a method for generating actors using Factor API
+	 * 
 	 * @param UIObserver
 	 * @return a new clean instance of ActorGrid
 	 */
@@ -119,6 +120,13 @@ public class GameController {
 		return actorGrid;
 	}
 	
+	/**
+	 * Initializes GameStatus and SimpleHUD (which displays GameStatus indicators on front end) and sets up Observer-Observable relationship between them,
+	 * and passes GameStatus writeableUser to update User data (experience + level), and the inital Game Status values based on saved User data
+	 * 
+	 * @param writeableUser
+	 * @param initialGameStatus
+	 */
 	private void setupGameStatus(WriteableUser writeableUser,InitialGameStatus initialGameStatus) {
 		mySimpleHUD = new SimpleHUD();
 		myGameStatus = new GameStatus(writeableUser,initialGameStatus);
@@ -130,6 +138,15 @@ public class GameController {
 		intitializeTimeline();
 	}
 	
+	/**
+	 * Sets up GameScreen's scene
+	 * Passes front end GameScreen's scene into SceneListen so that the scene will be able to listen for user input
+	 * 
+	 * @param stage
+	 * @param width
+	 * @param height
+	 * @param fill
+	 */
 	private void setScene(Stage stage,double width, double height, Paint fill) {
 		Scene myScene = new Scene(myGameScreen,width,height,fill);
 		mySceneListen = new SceneListen(myScene); 
@@ -144,17 +161,24 @@ public class GameController {
 		animation.getKeyFrames().add(frame);
 	}
 	
+	/**
+	 * Step function for timeline
+	 * Updates LevelController, ActorGrid, and polls SceneListen for user input
+	 */
 	private void step() {
 		myLevelController.update();
 		mySceneListen.pollQueue();
 		myGrid.step();
 	}
 	
+	/**
+	 * initialize/implement handler for ActorGrid
+	 */
 	private void initializeGridHandler() {
 		myGridHandler = new GridHandler() {
 			@Override
 			public WriteableGameStatus getWriteableGameStatus() {
-				return myGameStatus;//myWriteableGameStatus;
+				return myGameStatus;
 			}
 
 			@Override
@@ -164,6 +188,9 @@ public class GameController {
 		};
 	}
 	
+	/**
+	 * initialize/implement handler for GameScreen relating to animation
+	 */
 	private void initializeAnimationHandler() {
 		myAnimationHandler = new AnimationHandler() {
 			@Override
@@ -178,14 +205,14 @@ public class GameController {
 			public void stop() {
 				animation.stop();
 			}
-			@Override
-			public void exit() {
-				System.exit(0);
-			}
 		};
 	}
 	
-	private void initializeInitialGameStatus() {
+	/**
+	 * Initialize GameStatus indicators based on user data (experience) and user preferences (lives + money)
+	 * @param user
+	 */
+	private void initializeInitialGameStatus(User user) {
 		myInitGameStatus = new InitialGameStatus() {
 
 			@Override
@@ -197,9 +224,16 @@ public class GameController {
 			public Integer getInitLives() {
 				return myGameData.getPreferences().getNumLives();
 			}
+			
+			public double getInitExp() {
+				return user.getExperience();
+			}
 		};
 	}
 
+	/**
+	 * Initialize/implement handler for UI
+	 */
 	private void initializeUIHandler() {
 		myUIHandler = new UIHandler() {
 			@Override
@@ -241,6 +275,9 @@ public class GameController {
 		};
 	}
 	
+	/**
+	 * Initialize handler for GameLevelController
+	 */
 	private void initializeLevelHandler() {
 		myLevelHandler = new LevelHandler() {
 
@@ -274,10 +311,17 @@ public class GameController {
 			public BasicActorType getBasicActorTypeEnemy() {
 				return myGameObjectUtil.getBasicActorEnemyType(myGameData);
 			}
-			
 		};
 	}
 	
-	
+	/**
+	 * @param grid
+	 * @return Function for getting the counts of a specified BasicActorType (passed to GameLevelController)
+	 */
+	private Function<BasicActorType,Integer> getCounts(ReadableGrid grid) {
+		return (target) -> { 
+			return grid.getActorLocations(target).size();
+		};
+	}
 	
 }
