@@ -5,4 +5,5 @@ import java.util.Optional;
 public interface InitialGameStatus {
 Optional<Integer> getInitMoney();
 Integer getInitLives();
+double getInitExp();
 }

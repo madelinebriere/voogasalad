@@ -54,7 +54,7 @@ public class GameScreen extends GenericGameScreen
 	private AnimationHandler animationhandler;
 
 	public GameScreen(LoginHandler loginHandler, UIHandler uihandler, AnimationHandler animationHandler,
-			Supplier<SimpleHUD> simpleHUD) {
+			Supplier<SimpleHUD> simpleHUD, String song) {
 		super(uihandler, Optional.ofNullable(null), Optional.ofNullable(null),
 				Optional.of(uihandler.getDisplayData().getBackgroundImagePath()));
 		this.uihandler = uihandler;
@@ -66,6 +66,7 @@ public class GameScreen extends GenericGameScreen
 		initializeScreenHandler();
 		setup();
 		fadeTransition(this, .0, 1.);
+		setSong(song); 
 	}
 
 	public void setLoginHandler(LoginHandler loginhandler) {
