@@ -95,6 +95,7 @@ public class GameController {
 	}
 	
 	private void setUpGameScreen(LoginHandler loginHandler) {
+		System.out.println(myUIHandler.getDisplayData().getBackgroundImagePath());
 		myGameScreen = new GameScreen(loginHandler,myUIHandler,myAnimationHandler,() -> mySimpleHUD);
 		myGameScreen.setAnimationHandler(myAnimationHandler);
 		myGameScreen.setSong(myGameData.getPreferences().getMusicFilePath()); //set music for game
@@ -189,14 +190,13 @@ public class GameController {
 
 			@Override
 			public Optional<Integer> getInitMoney() {
-				return myGameData.getPreferences().getStartMoney();
+				return Optional.of(0);
 			}
 
 			@Override
 			public Integer getInitLives() {
 				return myGameData.getPreferences().getNumLives();
 			}
-			
 		};
 	}
 

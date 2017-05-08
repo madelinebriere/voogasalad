@@ -179,8 +179,8 @@ public class ActorInfoView extends AnchorPane implements DataViewDelegate, Optio
 		if(actor.getLayerName()!=null){
 			layer = actor.getLayerName();
 		}
-		BasicPicker<String> layers = 
-				new BasicPicker<String>
+		Picker<String> layers = 
+				new Picker<String>
 				(""+layer, new ArrayList<>(myGameData.getLayers().getMyLayers().keySet()), false);
 		layers.setBackground(UIHelper.backgroundForColor(CustomColors.BLUE_50));
 		layers.addToggle();
@@ -406,6 +406,7 @@ public class ActorInfoView extends AnchorPane implements DataViewDelegate, Optio
 	
 	@Override
 	public void didPickOptionWithData(String dataName) {
+		System.out.println("HERE" + dataName);
 		Data d = DataGenerator.makeData(dataName+"Data");
 		d.addData(this.myCurrentActorData);
 		addDataView(d);
