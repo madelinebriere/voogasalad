@@ -26,8 +26,8 @@ import util.Location;
 
 /**
  * Allows the user view and modify LayerData.
- * The user is able to draw polygons that define a region
- * within a layer.
+ * In terms of frontend, the user is able to draw polygons 
+ * by 
  * 
  * @author TNK
  *
