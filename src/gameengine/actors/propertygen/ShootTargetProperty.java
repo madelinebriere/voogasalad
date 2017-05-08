@@ -30,6 +30,7 @@ import types.BasicActorType;
  * that is spawned.
  * 
  * @author Moses Wayne
+ * @author harirajan
  *
  * @param <G>
  *            generic grid that is used by this class and subclasses depending
