@@ -20,6 +20,16 @@ public class Coordinates implements Grid2D {
 		this.x = x;
 		this.y = y;
 	}
+	
+	public boolean isValid(){
+		return x >= 0 && x<=1 && y>=0 && y<=1;
+	}
+	public void setX(double x){
+		this.x = x;
+	}
+	public void setY(double y){
+		this.y = y;
+	}
 
 	/**
 	 * returns the x location
