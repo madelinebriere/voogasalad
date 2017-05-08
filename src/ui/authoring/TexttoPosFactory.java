@@ -41,7 +41,7 @@ public class TexttoPosFactory {
 					menu.getNode().setOrientation(ORIENTATION_MAP.get(s));
 				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 					Alert a=new Alert(AlertType.ERROR);
-					a.setContentText("Not a valid Direction");
+					a.setContentText("Not a valid Location");
 					a.showAndWait();
 				}
 			}
