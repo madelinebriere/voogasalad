@@ -1,4 +1,3 @@
-package ui.authoring;
 //This entire file is part of my masterpiece.
 //Alex Blumenstock
 //This factory is used specifically by BorderPanes, like the DisplayViewEditor.  It allows them to have a comboBoc with the four
@@ -8,6 +7,8 @@ package ui.authoring;
 //ComboBox implementation
 //This class works closely with the DisplayViewmENU in this program, as each are called by the DisplayViewEditor,
 //and this factor serves to update the Menu
+package ui.authoring;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -40,7 +41,7 @@ public class TexttoPosFactory {
 					menu.getNode().setOrientation(ORIENTATION_MAP.get(s));
 				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 					Alert a=new Alert(AlertType.ERROR);
-					a.setContentText("Not a valid Direction");
+					a.setContentText("Not a valid Location");
 					a.showAndWait();
 				}
 			}
