@@ -86,6 +86,9 @@ public class RatingView implements LoginElement {
 		b.setMaxWidth(Preferences.SCREEN_WIDTH - DEFAULT_BACK_BUTTON_SIZE);
 		b.setMinWidth(Preferences.SCREEN_WIDTH - DEFAULT_BACK_BUTTON_SIZE);
 		b.setPrefWidth(Preferences.SCREEN_WIDTH - DEFAULT_BACK_BUTTON_SIZE);
+		b.setMaxHeight(1.2 * DEFAULT_BACK_BUTTON_SIZE);
+		b.setMinHeight(1.2 * DEFAULT_BACK_BUTTON_SIZE);
+		b.setPrefHeight(1.2 * DEFAULT_BACK_BUTTON_SIZE);
 		return b;
 	}
 
