@@ -23,7 +23,7 @@ public interface ReadableGrid{
 	 * @param type the type of actors in the search radius to find
 	 * @return A Collection of all actor locations given the search parameters
 	 */
-	Collection<Grid2D> getActorLocationsInRadius(double x, double y, double radius, BasicActorType type);
+	Collection<Grid2D> getActorLocationsInRadius(Grid2D pos, double radius, BasicActorType type);
 	
 	/**
 	 * @param id the id of an actor. Since actors don't have access to ID's other than their own, this should generally be the actor's own id. 

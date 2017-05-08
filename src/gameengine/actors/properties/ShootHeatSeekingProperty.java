@@ -1,3 +1,17 @@
+// This entire file is part of my masterpiece.
+// Moses Wayne
+//
+// NOTE: I promise the line count abides by the rules, I am just a very verbose commenter
+
+/*
+ * This class was improved by the use of syntactic sugar from Java, reducing line 
+ * count and cluttered up long lines of code and stressing the single 
+ * responsibility of this class. Like many of the other refactored classes, this
+ * class has only one or two lines of code for its methods. This is useful for 1)
+ * readability and 2) compactness to demonstrate the maintenance of single
+ * responsibility in the composition.
+ */
+
 package gameengine.actors.properties;
 
 import java.util.ArrayList;
@@ -19,7 +33,8 @@ import gameengine.grid.interfaces.Identifiers.Grid2D;
  * 
  * @author Moses Wayne
  *
- * @param <G> generic grid extending the ReadAndSpawnGrid interface
+ * @param <G>
+ *            generic grid extending the ReadAndSpawnGrid interface
  */
 public class ShootHeatSeekingProperty<G extends ReadAndSpawnGrid> extends ShootTargetProperty<G> {
 
@@ -40,10 +55,7 @@ public class ShootHeatSeekingProperty<G extends ReadAndSpawnGrid> extends ShootT
 
 	@Override
 	protected Collection<Double> getEnemyToShoot(Collection<Grid2D> points, Grid2D myPos) {
-		if (points.size() > 0) {
-			return new ArrayList<>(Arrays.asList(myPos.getX()));
-		}
-		return new ArrayList<>();
+		return (points.size() > 0 ? new ArrayList<>(Arrays.asList(myPos.getX())) : new ArrayList<>());
 	}
 
 }

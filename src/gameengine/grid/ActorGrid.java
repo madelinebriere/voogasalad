@@ -174,8 +174,8 @@ public class ActorGrid extends VoogaObservableMap<Integer, FrontEndInformation> 
 	 * See {@link ReadableGrid}
 	 */
 	@Override
-	public Collection<Grid2D> getActorLocationsInRadius(double x, double y, double radius, BasicActorType type) {
-		Collection<SettableActorLocator> actorsinRadius = getActorsInRadius(x, y, radius, type);
+	public Collection<Grid2D> getActorLocationsInRadius(Grid2D pos, double radius, BasicActorType type) {
+		Collection<SettableActorLocator> actorsinRadius = getActorsInRadius(pos.getX(), pos.getY(), radius, type);
 		return Collections.unmodifiableCollection(map(actorsinRadius, a -> a.getLocation()));
 	}
 	
@@ -284,9 +284,9 @@ public class ActorGrid extends VoogaObservableMap<Integer, FrontEndInformation> 
 	 * See {@link ReadAndSpawnGrid}
 	 */
 	@Override
-	public void actorSpawnActor(Integer actorType, double startX, double startY, Consumer<Collection<IActProperty<MasterGrid>>> action) {
+	public void actorSpawnActor(Integer actorType, Grid2D pos, Consumer<Collection<IActProperty<MasterGrid>>> action) {
 		Actor newActor = actorMaker.apply(actorType);
-		addActor(newActor, startX, startY);
+		addActor(newActor, pos.getX(), pos.getY());
 		newActor.addProperty(action);
 	}
 

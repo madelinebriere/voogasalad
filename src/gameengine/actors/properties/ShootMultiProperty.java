@@ -1,3 +1,13 @@
+// This entire file is part of my masterpiece.
+// Moses Wayne
+//
+// NOTE: I promise the line count abides by the rules, I am just a very verbose commenter
+
+/*
+ * This class is well designed because of the reduction in line count. It stresses the 
+ * single responsibility of this class, and utilizes syntactic sugar from Java to 
+ * improve the readability of the code. 
+ */
 package gameengine.actors.properties;
 
 import java.util.ArrayList;
@@ -13,7 +23,8 @@ import gameengine.grid.interfaces.Identifiers.Grid2D;
  * 
  * @author Moses Wayne
  *
- * @param <G> generic grid extending the ReadAndSpawnGrid
+ * @param <G>
+ *            generic grid extending the ReadAndSpawnGrid
  */
 public class ShootMultiProperty<G extends ReadAndSpawnGrid> extends ShootTargetLineProperty<G> {
 
@@ -33,11 +44,7 @@ public class ShootMultiProperty<G extends ReadAndSpawnGrid> extends ShootTargetL
 	 */
 	@Override
 	protected Collection<Double> getEnemyToShoot(Collection<Grid2D> points, Grid2D myPos) {
-		ArrayList<Double> retCollection = new ArrayList<>();
-		if (points.size() > 0) {
-			shotAngles.stream().forEach((angle) -> retCollection.add(angle));
-		}
-		return retCollection;
+		return (points.size() > 0 ? shotAngles : new ArrayList<>());
 	}
 
 }
