@@ -35,13 +35,13 @@ public class GameLevelController {
 	
 	private LevelHandler myLevelHandler;
 	
-	private Delay delay;
+	private Delay myDelay;
 	
 	private final int DELAY_CONSTANT = 35;
 	
 	private Condition myWinCondition;
 	
-	private int level;
+	private int myLevel;
 	
 	private Queue<Supplier<Boolean>> enemiesInWave;
 	
@@ -50,7 +50,7 @@ public class GameLevelController {
 	public GameLevelController(LevelHandler levelHandler,GameData gameData,GameStatus gameStatus) {
 		myLevelHandler = levelHandler;
 		myGrid = myLevelHandler.getMyGrid();
-		delay = new Delay(DELAY_CONSTANT);
+		myDelay = new Delay(DELAY_CONSTANT);
 		myGameData = gameData;
 		enemiesInWave = new ArrayDeque<>();
 		myGameStatus = gameStatus;
@@ -62,7 +62,7 @@ public class GameLevelController {
 	}
 	
 	public void update() {
-		if(delay.delayAction()&&!enemiesInWave.isEmpty()) enemiesInWave.poll().get();
+		if(myDelay.delayAction()&&!enemiesInWave.isEmpty()) enemiesInWave.poll().get();
 		int enemiesLeft = enemiesInWave.size()+myLevelHandler.actorCounts().apply(myLevelHandler.getBasicActorTypeEnemy());
 		setEnemiesLeft(enemiesLeft);
 		Optional<Boolean> myWin = myWinCondition.conditionSatisfied(myGameStatus);
@@ -74,12 +74,12 @@ public class GameLevelController {
 	}
 	
 	public int getLevel() {
-		return level;
+		return myLevel;
 	}
 	
 	public void levelUp() {
-		if (!(myGameData.getLevels().get(level+1)==null)) {
-			changeLevel(level+1);
+		if (!(myGameData.getLevels().get(myLevel+1)==null)) {
+			changeLevel(myLevel+1);
 			myLevelHandler.levelUp();
 		} else {
 			myLevelHandler.displayWinAlert();
@@ -87,13 +87,13 @@ public class GameLevelController {
 	}
 	
 	public void changeLevel(int level) {
-		this.level = level;
+		this.myLevel = level;
 		LevelData levelData = myGameData.getLevel(level);
 		loadLevel(levelData);
 	}
 	
 	private void loadLevel(LevelData levelData) {
-		delay = new Delay((int) levelData.getDuration());
+		myDelay = new Delay((int) levelData.getDuration());
 		updateWinCondition(levelData);
 		addSetPieces(myGameData.getLayers().getMyBaseData());
 		addPieces(levelData);
