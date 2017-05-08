@@ -1,7 +1,17 @@
+// This entire file is part of my masterpiece.
+// Moses Wayne
+//
+// NOTE: I promise the line count abides by the rules, I am just a very verbose commenter
+/*
+ * This class had its action call reduced to one line to abide by the specifications
+ * outlined in the parent abstract class. This was done to reduce clutter and
+ * make the code more compact. This improves readability and stresses the simple 
+ * nature of each individual property.
+ */
+
 package gameengine.actors.properties;
 
 import java.util.Arrays;
-import java.util.Collection;
 
 import gamedata.composition.ShootTargetWithMouseData;
 import gameengine.grid.interfaces.ActorGrid.ReadAndSpawnGrid;
@@ -27,9 +37,7 @@ public class ShootTargetWithMouseProperty<G extends ReadAndSpawnGrid> extends Sh
 	 */
 	@Override
 	public void action(G grid, Integer actorID) {
-		Collection<Double> dirCoordinates = getEnemyToShoot(Arrays.asList(grid.getEventQueue().getLocation()),
-				grid.getLocationOf(actorID));
-		spawnProjectiles(grid, dirCoordinates, grid.getLocationOf(actorID));
+		spawnProjectiles(grid, getEnemyToShoot(Arrays.asList(grid.getEventQueue().getLocation()),grid.getLocationOf(actorID)), actorID);
 	}
 
 }

@@ -1,3 +1,18 @@
+// This entire file is part of my masterpiece.
+// Moses Wayne
+//
+// NOTE: I promise the line count abides by the rules, I am just a very verbose commenter
+
+/* The entire shoot property hierarchy is my masterpiece for VOOGASalad. I believe 
+ * the class was already well designed, and the additions I made improved the 
+ * inheritance structure, readability, and compactness of the class hierarchy. In this
+ * class, I added a protected helper method to provide the position of the actor 
+ * holding this property to reduce clutter when calling the method in the grid. I
+ * also refactored parameter lines to reduce the number of parameters needed by passing 
+ * objects that encompass multiple objects.
+ * 
+ */
+
 package gameengine.actors.propertygen;
 
 import java.util.Collection;
@@ -50,11 +65,8 @@ public abstract class ShootTargetProperty<G extends ReadAndSpawnGrid> extends Cy
 	 */
 	@Override
 	public void action(G grid, Integer actorID) {
-		Collection<Double> dirCoordinates = getEnemyToShoot(
-				grid.getActorLocationsInRadius(grid.getLocationOf(actorID).getX(), grid.getLocationOf(actorID).getY(),
-						myRange, myTarget),
-				grid.getLocationOf(actorID));
-		spawnProjectiles(grid, dirCoordinates, grid.getLocationOf(actorID));
+		spawnProjectiles(grid, getEnemyToShoot(grid.getActorLocationsInRadius(getPos(grid, actorID), myRange, myTarget),
+				getPos(grid, actorID)), actorID);
 	}
 
 	/**
@@ -67,7 +79,7 @@ public abstract class ShootTargetProperty<G extends ReadAndSpawnGrid> extends Cy
 	 *            Grid2D location of the actor holding this property
 	 * @return collection of targets to fire at
 	 */
-	protected abstract Collection<Double> getEnemyToShoot(Collection<Grid2D> points, Grid2D myPos);
+	protected abstract Collection<Double> getEnemyToShoot(Collection<Grid2D> points, Grid2D pos);
 
 	/**
 	 * Method to spawn actors (typically projectiles, but functionally
@@ -77,14 +89,12 @@ public abstract class ShootTargetProperty<G extends ReadAndSpawnGrid> extends Cy
 	 *            grid object used to interface with the rest of the gameengine
 	 * @param targets
 	 *            angles represented as doubles of targets
-	 * @param myLoc
-	 *            Grid2D representation of the location of the actor holding
-	 *            this property
+	 * @param id
+	 *            unique Integer representation of the actor
 	 */
-	protected void spawnProjectiles(G grid, Collection<Double> targets, Grid2D myLoc) {
+	protected void spawnProjectiles(G grid, Collection<Double> targets, Integer id) {
 		targets.stream().forEach(target -> {
-			grid.actorSpawnActor(myProjectile, myLoc.getX(), myLoc.getY(),
-					projectileProperty(target, myRange, mySpeed));
+			grid.actorSpawnActor(myProjectile, getPos(grid, id), projectileProperty(target, myRange, mySpeed));
 		});
 	}
 
@@ -116,5 +126,18 @@ public abstract class ShootTargetProperty<G extends ReadAndSpawnGrid> extends Cy
 	 */
 	protected BasicActorType getMyTarget() {
 		return myTarget;
+	}
+
+	/**
+	 * Helper method to reduce clutter from constant calls to the grid
+	 * 
+	 * @param grid
+	 *            grid used to determine Grid2D location
+	 * @param actorID
+	 *            unique Integer identifier
+	 * @return current position of MainActor holding this property
+	 */
+	protected Grid2D getPos(G grid, Integer actorID) {
+		return grid.getLocationOf(actorID);
 	}
 }
