@@ -1,3 +1,6 @@
+// This entire file is part of my masterpiece.
+// Anngelyque Stevenson
+
 package ui.player.inGame;
 
 import java.util.Collection;
@@ -150,14 +153,10 @@ public class GameScreen extends GenericGameScreen
 							getChildren().remove(actorsMap.get(oldActor.getID()).getMainPane());
 							actorsMap.remove(oldActor.getID());
 							uihandler.deleteGameObject(oldActor.getID());
-							Actor actor = new Actor(uihandler, screenHandler, option, uihandler.getLineageData().get(option).getCurrent());
-							actor.getMainPane().setLayoutX(oldActor.getMainPane().getLayoutX());
-							actor.getMainPane().setLayoutY(oldActor.getMainPane().getLayoutY());
-							getChildren().add(actor.getMainPane());
+							Actor actor = createActor(oldActor.getMainPane().getLayoutX() + getWidth(), oldActor.getMainPane().getLayoutY(), option, uihandler.getLineageData().get(option).getCurrent());
 							actor.turnOffHandlers();
 							Integer actorID = uihandler.addGameObject(option, actor.getMainPane().getLayoutX() / getWidth(), actor.getMainPane().getLayoutY() / getWidth());
 							actorsMap.put(actorID, actor);
-							System.out.println(actorsMap);
 							actor.setID(actorID);
 							close.handle(event);
 							actor.getMainPane().addEventHandler(MouseEvent.MOUSE_CLICKED, e -> showUpgrades(option, actor));
@@ -284,11 +283,8 @@ public class GameScreen extends GenericGameScreen
 			double yCoor = util.Transformer.ratioToCoordinate(arg.get(id).getActorLocation().getY(),
 					(ivp.getHeight() - ivp.getImageInsets().y));
 			
-			actor.getMainPane().setLayoutX(xCoor - actor.getMainPane().getWidth()/2); // to get the right image position
+			actor.getMainPane().setLayoutX(xCoor - actor.getMainPane().getWidth()/2);
 			actor.getMainPane().setLayoutY(yCoor - actor.getMainPane().getWidth()/2 );
-			
-			//actor.getMainPane().setLayoutX(xCoor);
-			//actor.getMainPane().setLayoutY(yCoor);
 		});
 	}
 }
