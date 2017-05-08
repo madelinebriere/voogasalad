@@ -1,4 +1,4 @@
-package ui.authoring.map.layer;
+package ui.authoring.map.layercomponents;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,9 +7,13 @@ import gameengine.grid.classes.Coordinates;
 import gameengine.grid.interfaces.Identifiers.Grid2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import ui.authoring.map.PointType;
 import ui.general.CustomColors;
 
+/**
+ * 
+ * @author TNK
+ *
+ */
 public class UIPoint extends Circle {
 	
 	@SuppressWarnings("serial")

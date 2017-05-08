@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gameengine.grid.interfaces.Identifiers.Grid2D;
-import ui.authoring.map.layer.UIPoint;
+import ui.authoring.map.layercomponents.UIPoint;
 import util.Location;
 
 /**

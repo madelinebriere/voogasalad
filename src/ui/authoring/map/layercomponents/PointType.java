@@ -1,4 +1,4 @@
-package ui.authoring.map;
+package ui.authoring.map.layercomponents;
 
 public enum PointType{
 	ENTRY,EXIT,PATH

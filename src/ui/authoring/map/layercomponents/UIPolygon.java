@@ -1,14 +1,16 @@
-package ui.authoring.map.layer;
+package ui.authoring.map.layercomponents;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import gamedata.map.PolygonData;
 import gameengine.grid.classes.Coordinates;
-import gameengine.grid.interfaces.Identifiers.Grid2D;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Polygon;
 
+/**
+ * used by PolygonLayerView to manage individual PolygonData of MapLayerData
+ * @author TNK
+ *
+ */
 public class UIPolygon extends Polygon{
 	
 	private PolygonData myPolygonData;

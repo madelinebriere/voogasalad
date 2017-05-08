@@ -1,4 +1,4 @@
-package ui.authoring.map.layer;
+package ui.authoring.map;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,16 +11,26 @@ import gamedata.MapLayersData;
 import gamedata.PathData;
 import gameengine.grid.classes.Coordinates;
 import gameengine.grid.interfaces.Identifiers.Grid2D;
+import javafx.event.EventHandler;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
-import ui.authoring.map.PointType;
+import ui.authoring.map.layercomponents.Layer;
+import ui.authoring.map.layercomponents.PointType;
+import ui.authoring.map.layercomponents.UIPath;
+import ui.authoring.map.layercomponents.UIPoint;
 import ui.general.CustomColors;
 import ui.general.ImageViewPane;
 import util.Location;
 import util.Tuple;
 
+/**
+ * Allows the user view and modify PathData
+ * 
+ * @author TNK
+ *
+ */
 public class PathLayerView extends Layer {
 
 	private boolean isActive = false;
@@ -29,12 +39,13 @@ public class PathLayerView extends Layer {
 	private boolean isFirstPoint = true;
 	private List<UIPath> myUIPath;
 	private UIPath myCurrentPath;
+	private EventHandler<MouseEvent> myEvent = e -> handleMouseRelease(e);
 	
 	public PathLayerView(PathData data) {
 		super();
 		myPathData = data;
 		myUIPath = new ArrayList<>();
-		addEventHandler(MouseEvent.MOUSE_RELEASED, e -> handleMouseRelease(e));
+		addMouseEvents();
 		widthProperty().addListener(e -> sizeDidChange());
 		heightProperty().addListener(e -> sizeDidChange());
 	}
@@ -99,15 +110,6 @@ public class PathLayerView extends Layer {
 
 	}
 
-	@Override
-	public void activate() {
-		isActive = true;
-	}
-
-	@Override
-	public void deactivate() {
-		isActive = false;
-	}
 
 	@Override
 	public void clear() {
@@ -118,8 +120,6 @@ public class PathLayerView extends Layer {
 
 	@Override
 	public void undo() {
-		
-		List<Grid2D> data = myPathData.pop();
 		UIPath path = this.myUIPath.remove(myUIPath.size() - 1);
 		getChildren().removeAll(path.getLines());
 		getChildren().removeAll(path.getPoints());
@@ -135,14 +135,12 @@ public class PathLayerView extends Layer {
 		return isActive;
 	}
 	
-	private void sizeDidChange() {
+	
+	@Override
+	public void sizeDidChange() {
 		this.myUIPath.forEach(path -> path.reload(this));
 	}
 
-//	@Override
-//	public void load(MapLayersData mapData) {
-//		loadPathData(mapData.getMyPathData());
-//	}
 	
 	private void loadPathData(PathData pathData){
 		pathData.getMyPaths().forEach((i,list) -> {
@@ -152,6 +150,18 @@ public class PathLayerView extends Layer {
 	
 	private void addPathToSelf(List<Grid2D> points){
 		this.myUIPath.add(new UIPath(points, this));
+	}
+
+	@Override
+	public void addMouseEvents() {
+		addEventHandler(MouseEvent.MOUSE_RELEASED, myEvent);
+		
+	}
+
+	@Override
+	public void removeMouseEvents() {
+		removeEventHandler(MouseEvent.MOUSE_RELEASED, myEvent);
+		
 	}
 
 

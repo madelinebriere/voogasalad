@@ -1,9 +1,7 @@
-package ui.authoring.map.layer;
+package ui.authoring.map.layercomponents;
 
 import gamedata.ActorData;
 import gameengine.grid.classes.Coordinates;
-import gameengine.grid.interfaces.Identifiers.Grid2D;
-import javafx.geometry.Bounds;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;

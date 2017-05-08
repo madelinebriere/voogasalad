@@ -1,4 +1,4 @@
-package ui.authoring.map.layer;
+package ui.authoring.map.layercomponents;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +11,11 @@ import ui.general.CustomColors;
 import util.Location;
 import util.VoogaException;
 
+/**
+ * helps the PathLayerView manage individual path entries in PathData
+ * @author TNK
+ *
+ */
 public class UIPath {
 	
 	private static final double LINE_WIDTH = 2.0;

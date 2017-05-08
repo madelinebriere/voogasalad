@@ -37,7 +37,7 @@ import ui.authoring.delegates.DisplayDelegate;
 import ui.authoring.delegates.MenuDelegate;
 import ui.authoring.delegates.PopViewDelegate;
 import ui.authoring.level.LevelEditorView;
-import ui.authoring.map.MapEditorView;
+import ui.authoring.map.MapViewController;
 import ui.general.CustomColors;
 import ui.general.ImageButton;
 import ui.general.UIHelper;
@@ -56,7 +56,6 @@ public class AuthoringView extends AnchorPane implements PopViewDelegate,MenuDel
 	
 	private final double SIDE_PANE_WIDTH = 200;
 	private final double SIDE_PANE_WIDTH_MIN = 144;
-
 	private final Color THEME_COLOR = CustomColors.GREEN_200;
 	
 	private LoginHandler loginhandler;
@@ -67,14 +66,11 @@ public class AuthoringView extends AnchorPane implements PopViewDelegate,MenuDel
 	 */
 	private BorderPane myBorderPane = new BorderPane();
 	private LevelEditorView myLevelView;
-	private MapEditorView myMapView;
+	private MapViewController myMapView;
 	private DisplayView myDisplayView;
-	private LeftPaneView myLeftPane; //purpose of this pane is to flip animate 
+	private LeftPaneView myLeftPane;
 	private MenuView myMenuView;
-	
-	/*
-	 * 
-	 */
+
 	private Pane myDimmerView;
 	private EventHandler<MouseEvent> myDimmerEvent = e -> {};
 	private FadeTransition dimAnimator;
@@ -85,7 +81,7 @@ public class AuthoringView extends AnchorPane implements PopViewDelegate,MenuDel
 		
 		UIHelper.setBackgroundColor(this, Color.WHITE);	
 		myGameData = new GameData("Untitled"); //TODO 
-		setupViews(); // false = not loaded
+		setupViews();
 	}
 
 	private void setupViews() {
@@ -93,7 +89,6 @@ public class AuthoringView extends AnchorPane implements PopViewDelegate,MenuDel
 		setupMapView();
 		setupLeftPane();
 		setupLevelView();
-		
 		setupBottomPane();
 		setupMargins();
 		setupBorderPane();
@@ -179,11 +174,7 @@ public class AuthoringView extends AnchorPane implements PopViewDelegate,MenuDel
 		UIHelper.setBackgroundColor(myDisplayView, CustomColors.GREEN);
 		//end test
 		
-
 		myMenuView = new MenuView(this, myGameData.getPreferences());
-
-
-		
 		myMenuView.setLayoutX(-width - 4);
 		myMenuView.setPrefWidth(width);
 		
@@ -192,7 +183,6 @@ public class AuthoringView extends AnchorPane implements PopViewDelegate,MenuDel
 		AnchorPane.setTopAnchor(myMenuView, 0.0);
 		AnchorPane.setBottomAnchor(myMenuView, 0.0);
 		this.getChildren().add(myMenuView);
-
 	}
 	
 	private void setupName() {
@@ -250,7 +240,7 @@ public class AuthoringView extends AnchorPane implements PopViewDelegate,MenuDel
 	}
 
 	private void setupMapView() {
-		myMapView = new MapEditorView(this, myGameData.getLayers(),myGameData.getDisplayData());
+		myMapView = new MapViewController(this, myGameData.getLayers(),myGameData.getDisplayData());
 		UIHelper.setBackgroundColor(myMapView, THEME_COLOR);
 		UIHelper.setDropShadow(myMapView);
 		myBorderPane.setCenter(myMapView);
@@ -291,8 +281,6 @@ public class AuthoringView extends AnchorPane implements PopViewDelegate,MenuDel
 		TranslateTransition t = new TranslateTransition(Duration.seconds(0.3));
 		t.setNode(myMenuView);
 		t.setByX(myMenuView.getWidth());
-		System.out.println(myMenuView);
-		System.out.println(myMenuView.getWidth());
 		t.play();
 	}
 	//alex test
@@ -382,9 +370,6 @@ public class AuthoringView extends AnchorPane implements PopViewDelegate,MenuDel
 	private void loadGameData(GameData data) {
 		getChildren().clear();
 		this.myGameData = data;
-//		myGameData.getLayers().getMyPathData().getMyPaths().entrySet().forEach(entry -> {
-//			System.out.println(entry.getValue());
-//		});
 		setupViews();//loaded
 	}
 	

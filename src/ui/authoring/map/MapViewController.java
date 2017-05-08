@@ -1,19 +1,12 @@
 package ui.authoring.map;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
-
-
-
 import XML.xmlmanager.classes.ConcreteFileHelper;
 import gamedata.MapLayersData;
-import gamedata.PathData;
 import gamedata.DisplayData;
 import gamedata.LayerData;
 import javafx.geometry.Insets;
@@ -23,8 +16,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -34,14 +25,10 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import ui.Preferences;
 import ui.authoring.PopupSize;
-import ui.authoring.delegates.LayerViewDelegate;
 import ui.authoring.delegates.PopViewDelegate;
-import ui.authoring.map.layer.BaseLayerView;
-import ui.authoring.map.layer.Layer;
-import ui.authoring.map.layer.LayerPopupDelegate;
-import ui.authoring.map.layer.LayerPopupView;
-import ui.authoring.map.layer.PathLayerView;
-import ui.authoring.map.layer.PolygonLayerView;
+import ui.authoring.map.layercomponents.Layer;
+import ui.authoring.map.layercomponents.LayerPopupDelegate;
+import ui.authoring.map.layercomponents.LayerPopupView;
 import ui.general.CustomColors;
 import ui.general.ImageViewPane;
 import ui.general.UIHelper;
@@ -49,12 +36,12 @@ import util.Tuple;
 
 /**
  * 
- * Creates and stores the PathData object
+ * Purpose is allow user to graphically display and modify MapLayersData
  * 
  * @author TNK
  *
  */
-public class MapEditorView extends StackPane implements LayerViewDelegate, LayerPopupDelegate {
+public class MapViewController extends StackPane implements LayerPopupDelegate {
 	
 	private boolean IS_LOADED = false;
 	private static final Color[] LAYER_COLORS = { 
@@ -70,7 +57,7 @@ public class MapEditorView extends StackPane implements LayerViewDelegate, Layer
 	private DisplayData myDisplayData;
 	private Pane myLayerPopup;
 	
-	public MapEditorView(PopViewDelegate popDelegate, MapLayersData mapData, DisplayData displayData) {
+	public MapViewController(PopViewDelegate popDelegate, MapLayersData mapData, DisplayData displayData) {
 
 		super();
 		myLayers = new ArrayList<>();
@@ -179,33 +166,24 @@ public class MapEditorView extends StackPane implements LayerViewDelegate, Layer
 	private void switchToLayer(Layer layer) {
 
 		myLayers.forEach(l -> {
-			if (l == layer) {
-				l.setOpacity(0.85);
-				l.activate();
-				getChildren().remove(layer);
-				getChildren().add(layer);
-
-			} else {
 				l.setOpacity(0.15);
 				l.deactivate();
-
-			}
-		});
-
+			});
+			layer.setOpacity(0.85);
+			layer.activate();
+			getChildren().remove(layer);
+			getChildren().add(layer);
 	}
 
 	private void setupLayerSelector() {
 		// setup HBox
 		myLayerPicker = new HBox();
-		// add button that switches path maker
 		StackPane.setAlignment(myLayerPicker, Pos.BOTTOM_CENTER);
 		StackPane.setMargin(myLayerPicker, new Insets(8, 192, 8, 8));
 		myLayerPicker.setMaxHeight(56);
 		ScrollPane scroll = new ScrollPane();
 		scroll.setContent(myLayerPicker);
-		// TODO scrollpane
 		UIHelper.setBackgroundColor(myLayerPicker, CustomColors.GREEN);
-		// add new layer button
 		addNewLayerButton();
 		this.getChildren().add(myLayerPicker);
 
@@ -275,21 +253,11 @@ public class MapEditorView extends StackPane implements LayerViewDelegate, Layer
 		fileChooser.getExtensionFilters().add(new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"));
 		File selectedFile = fileChooser.showOpenDialog(this.getScene().getWindow());
 		if (selectedFile != null) {
-
-			ConcreteFileHelper manager = new ConcreteFileHelper();
-			// TODO copy file to images folder
-			
-			
-			try {
-				
-				//Files.move(Paths.get(selectedFile.getAbsolutePath()), Paths.get(new File("images\\").getAbsolutePath()));
-				
+			ConcreteFileHelper manager = new ConcreteFileHelper();			
+			try {				
 				manager.moveFile(selectedFile.getParent(), "images", selectedFile.getName());
 				
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-			e1.printStackTrace();
-				
+			} catch (Exception e1) {				
 			}
 			//Image image=new Image(selectedFile.getName());
 			Image image=new Image(selectedFile.toURI().toString());
@@ -298,10 +266,7 @@ public class MapEditorView extends StackPane implements LayerViewDelegate, Layer
 
 		}
 	}
-	
-	private void setBackground(String fileName){
-		//TODO
-	}
+
 
 	/**
 	 * This method updates the location of the points on the map This method is
@@ -317,21 +282,6 @@ public class MapEditorView extends StackPane implements LayerViewDelegate, Layer
 	
 	public BaseLayerView getBaseLayer(){
 		return this.myBaseLayer;
-	}
-
-	/*
-	 * LayerViewDelegate
-	 * 
-	 * @see
-	 * ui.authoring.delegates.LayerViewDelegate#removeLayerView(ui.authoring.map
-	 * .layer.Layer)
-	 */
-	@Override
-	public void removeLayerView(Layer layerView) {
-		// TODO Auto-generated method stub
-		// this.getChildren().remove(layerView);
-		// this.myLayers.remove(layerView);
-		// this.myLayerPicker.getChildren().removeIf(filter);
 	}
 
 	/*
