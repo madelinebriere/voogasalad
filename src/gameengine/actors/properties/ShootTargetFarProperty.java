@@ -1,3 +1,14 @@
+// This entire file is part of my masterpiece.
+// HARI RAJAN
+//
+// This class allows an actor to be shoot the target furthest from to it within its hit
+// radius. I think the use of generics here is especially noteworthy. I spent a 
+// lot of time explaining this in my ANALYSIS.md, but the use of generics here 
+// allows this property class to gain access to exactly the methods it needs. 
+// Because the ShootTargetNearProperty needs to spawn projectiles,it needs access
+// to the methods from the ReadAndSpawnGrid. This class also showcases how duplicate
+// code can easily be eliminated using abstract super classes.
+
 package gameengine.actors.properties;
 
 import java.util.ArrayList;

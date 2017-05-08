@@ -20,8 +20,8 @@ public class MainActor implements Actor {
 	private List<IActProperty<MasterGrid>> myProperties;
 	private List<IActProperty<MasterGrid>> myExits;
 	
-	public MainActor(BasicActorType type, Integer option, 
-			Integer id, HealthProperty health) {
+	public MainActor(BasicActorType type, Integer option, Integer id, HealthProperty health) 
+	{
 		myType = type;
 		myID = id;
 		myHealth = health;
@@ -31,8 +31,8 @@ public class MainActor implements Actor {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public MainActor(BasicActorType type, Integer option, 
-			Integer id, HealthProperty health, IActProperty<MasterGrid>... properties) {
+	public MainActor(BasicActorType type, Integer option, Integer id, HealthProperty health, IActProperty<MasterGrid>... properties) 
+	{
 		this(type, option, id, health);
 		for (IActProperty<MasterGrid> p : properties) {
 			myProperties.add(p);
@@ -41,74 +41,76 @@ public class MainActor implements Actor {
 	}
 
 	@Override
-	public void act(MasterGrid grid) {
+	public void act(MasterGrid grid) 
+	{
 		myProperties.stream().filter(prop -> prop.isOn()).forEach(prop -> prop.action(grid, myID));
 	}
 
 	@Override
-	public boolean isActive() {
+	public boolean isActive() 
+	{
 		return myHealth.isAlive();
 	}
 
 	@Override
-	public Consumer<Double> applyDamage() {
+	public Consumer<Double> applyDamage() 
+	{
 		return (damage) -> {
 			myHealth.apply(damage);
 		};
 	}
 
 	@Override
-	public Integer getID() {
+	public Integer getID() 
+	{
 		return myID;
 	}
 
-	/*@Override
-	public Consumer<IActProperty<MasterGrid>> addProperty() {
-		return (property) -> {
-			myProperties.add(property);
-		};
-	}*/
 	@Override
-	public void addProperty(Consumer<Collection<IActProperty<MasterGrid>>> function) {
+	public void addProperty(Consumer<Collection<IActProperty<MasterGrid>>> function) 
+	{
 		function.accept(myProperties);
 	}
 
 	@Override
-	public BasicActorType getType() {
+	public BasicActorType getType() 
+	{
 		return myType;
 	}
 
 	@Override
-	public Integer getMyOption() {
+	public Integer getMyOption() 
+	{
 		return myOption;
 	}
 
 	@Override
-	public double getPercentHealth() {
+	public double getPercentHealth() 
+	{
 		return myHealth.getPercent();
 	}
 	
 	@Override
-	public double getRemainingHealth() { 
+	public double getRemainingHealth() 
+	{ 
 		return myHealth.getRemaining();
 	}
 
-	public List<IActProperty<MasterGrid>> getMyProperties() {
+	public List<IActProperty<MasterGrid>> getMyProperties() 
+	{
 		return myProperties;
 	}
 
 	@Override
-	public void exit(MasterGrid grid) {
+	public void exit(MasterGrid grid) 
+	{
 		myExits.stream().forEach(prop -> prop.action(grid, myID));
 	}
 
 	@Override
-	public void changeExit(Consumer<Collection<IActProperty<MasterGrid>>> action) {
+	public void changeExit(Consumer<Collection<IActProperty<MasterGrid>>> action) 
+	{
 		action.accept(myExits);
 	}
-	
-	
-	
-	
 
 }

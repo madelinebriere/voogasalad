@@ -1,3 +1,15 @@
+// This entire file is part of my masterpiece.
+// HARI RAJAN
+//
+// This class allows an actor to be damageable. I believe this class showcases many
+// of the concepts we have learned in class including implementing interfaces, 
+// generics, streams, consumers, and more. I think the use of generics here is 
+// especially noteworthy. I spent a lot of time explaining this in my ANALYSIS.md,
+// but the use of generics here allows this property class to gain access to exactly
+// the methods it needs. Because the ActorDamageableProperty needs to damage actors,
+// it needs access to the ReadAndDamageGrid.  This class also showcases how duplicate
+// code can easily be eliminated using abstract super classes.
+
 package gameengine.actors.properties;
 
 import java.util.function.Consumer;
