@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import builders.infogen.masterpiece.DataInfoGenerator;
+import builders.infogen.masterpiece.HierarchyInfoGenerator;
 import builders.util.FieldGenerator;
 import gamedata.FieldData;
 import gamedata.GameData;
@@ -41,11 +43,11 @@ public class AuthorInfoGenerator{
 	}
 	
 	public static String getName(Data data){
-		return (new DataInfoGenerator()).simplifyName(data);
+		return (new DataInfoGenerator()).simplifyObjectName(data);
 	}
 	
 	public static String getName(Condition con){
-		return (new ConditionInfoGenerator()).simplifyName(con);
+		return (new ConditionInfoGenerator()).simplifyObjectName(con);
 	}
 	
 	/**
@@ -75,10 +77,21 @@ public class AuthorInfoGenerator{
 		return getTypesWithArgs(new ConditionInfoGenerator());
 	}
 	
-	
-	public static <T extends Object> Map<String, List<FieldData>> getTypesWithArgs
-			(TwoLevelInfoGenerator<T> info){
+
+	/**
+	 * Return a map of the Strings representing the class type and a List of
+	 * FieldData objects representing the fields taken by that class.
+	 * 
+	 * @param info TwoLevelInfoGenerator for use in collecting concrete data classes
+	 * @return Map of String names representing classes to Lists of FieldDatas
+	 */
+	private static  Map<String, List<FieldData>> getTypesWithArgs
+			(HierarchyInfoGenerator info){
+
 		List<Class<?>> datas = info.getConcreteDataClasses();
+		for(Class<?> data: datas){
+			System.out.println(data.getSimpleName());
+		}
 		Map<String,List<FieldData>> toRet = new LinkedHashMap<String, List<FieldData>>();
 		
 		for(Class<?> clzz: datas){
