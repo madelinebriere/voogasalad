@@ -1,4 +1,4 @@
-package ui.authoring.map.layer;
+package ui.authoring.map.layercomponents;
 
 import java.util.Optional;
 

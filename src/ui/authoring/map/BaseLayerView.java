@@ -1,4 +1,4 @@
-package ui.authoring.map.layer;
+package ui.authoring.map;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,9 +11,17 @@ import gameengine.grid.interfaces.Identifiers.Grid2D;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import ui.authoring.map.layercomponents.Layer;
+import ui.authoring.map.layercomponents.UIBase;
 import util.Location;
 import util.Tuple;
 
+/**
+ * Allows the user view and modify BaseData
+ * 
+ * @author TNK
+ *
+ */
 public class BaseLayerView extends Layer {
 
 	private boolean DID_LAUNCH;
@@ -75,7 +83,7 @@ public class BaseLayerView extends Layer {
 	public BaseLayerView(BasePlacementData data) {
 		myData = data;
 		myBases = new ArrayList<>();
-		this.addEventHandler(MouseEvent.ANY, myEvent);
+		addMouseEvents();
 		widthProperty().addListener(e -> sizeDidChange());
 		heightProperty().addListener(e -> sizeDidChange());
 	}
@@ -89,7 +97,8 @@ public class BaseLayerView extends Layer {
 		DID_LAUNCH = true;
 	}
 	
-	private void sizeDidChange() {
+	@Override
+	public void sizeDidChange() {
 		this.myBases.forEach(path -> path.updateLayout(this));
 	}
 
@@ -155,16 +164,6 @@ public class BaseLayerView extends Layer {
 	}
 
 	@Override
-	public void activate() {
-		isActive = true;
-	}
-
-	@Override
-	public void deactivate() {
-		isActive = false;
-	}
-
-	@Override
 	public void clear() {
 		myBases.forEach(base -> deleteBase(base));
 
@@ -185,6 +184,18 @@ public class BaseLayerView extends Layer {
 	@Override
 	public boolean isActive() {
 		return isActive;
+	}
+
+	@Override
+	public void addMouseEvents() {
+		this.addEventHandler(MouseEvent.ANY, myEvent);
+
+		
+	}
+
+	@Override
+	public void removeMouseEvents() {
+		this.removeEventHandler(MouseEvent.ANY, myEvent);
 	}
 
 }
