@@ -1,3 +1,14 @@
+///This entire file is part of my masterpiece.
+//Alex Blumenstock
+// This class is a representation of the menu of placeable actors that the player will have access to
+//in the Game Player.  The menu observes GameData's Collection of LineageData's and checks
+//each for the placeable field.  If this field is true, the addActor() method is called, which
+//adds the actor to an ActorData list and maps the ActorData to its image. It then adds each of the
+//ImageViews in the valueset of the map to a ListView for display.  The Cellfactory shrinks each image to a manageable display size
+// and allows for dynamic rearranging of both the list and the listView merely by dragging.  This graphical reordering
+//is very author-friendly,instead of being bound by the order that the actors were instantiated.
+//the public setter methods at the bottom allow for dynamic resizing of the menu (They are called in the DisplayView class).
+//Each time the menu is opened, it evaluates all actors to see if any have gained or lost their placeable status.
 package ui.authoring.display;
 
 import java.util.ArrayList;
@@ -21,17 +32,7 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import gamedata.ActorData;
-///This entire file is part of my masterpiece.
-//Alex Blumenstock
-// This class is a representation of the menu of placeable actors that the player will have access to
-//in the Game Player.  The menu observes GameData's Collection of LineageData's and checks
-//each for the placeable field.  If this field is true, the addActor() method is called, which
-//adds the actor to an ActorData list and maps the ActorData to its image. It then adds each of the
-//ImageViews in the valueset of the map to a ListView for display.  The Cellfactory shrinks each image to a manageable display size
-// and allows for dynamic rearranging of both the list and the listView merely by dragging.  This graphical reordering
-//is very author-friendly,instead of being bound by the order that the actors were instantiated.
-//the public setter methods at the bottom allow for dynamic resizing of the menu (They are called in the DisplayView class).
-//Each time the menu is opened, it evaluates all actors to see if any have gained or lost their placeable status.
+
 public class DisplayMenu {
 	private DisplayData myData;
 	private List<ActorData> myActors;
@@ -50,7 +51,6 @@ public class DisplayMenu {
 		myActors = new ArrayList<ActorData>(actorMap.keySet());
 		data.setActorOrder(myActors);
 	}
-
 	private void setupData(DisplayData data, GameData gameData) {
 		myData = data;
 		myGameData = gameData;
