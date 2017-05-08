@@ -51,7 +51,6 @@ public class DisplayMenu {
 		myActors = new ArrayList<ActorData>(actorMap.keySet());
 		data.setActorOrder(myActors);
 	}
-
 	private void setupData(DisplayData data, GameData gameData) {
 		myData = data;
 		myGameData = gameData;
